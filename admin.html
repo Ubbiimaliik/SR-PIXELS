@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - SR Pixels</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* Admin Specific Overrides */
+    body { padding-top: 80px; } /* Space for navbar if we add one */
+    .admin-container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 20px 10px;
+    }
+    .admin-section {
+      background: rgba(14, 21, 22, 0.95);
+      border: 1px solid rgba(132, 148, 149, 0.2);
+      padding: 15px 20px;
+      margin-bottom: 20px;
+      position: relative;
+    }
+    .admin-title {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 15px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      border-bottom: 1px solid var(--theme-1);
+      padding-bottom: 5px;
+    }
+    .admin-subtitle {
+      font-size: 1rem;
+      color: var(--theme-1);
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+    .form-group { margin-bottom: 10px; }
+    .form-label { display: block; margin-bottom: 4px; font-size: 0.85rem; color: var(--text-mid); }
+    .form-input {
+      width: 100%;
+      padding: 8px 10px;
+      background: rgba(0,0,0,0.4);
+      border: 1px solid var(--border-mid);
+      color: #fff;
+      font-size: 0.85rem;
+      transition: border-color 0.3s;
+    }
+    .form-input:focus {
+      outline: none;
+      border-color: var(--theme-1);
+    }
+    .form-textarea { min-height: 60px; resize: vertical; }
+    .dynamic-list { margin-bottom: 10px; }
+    .dynamic-item {
+      border: 1px dashed rgba(132, 148, 149, 0.4);
+      padding: 10px;
+      margin-bottom: 10px;
+      position: relative;
+      background: rgba(0, 0, 0, 0.5);
+    }
+    .remove-btn {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      background: #ff0055;
+      color: #fff;
+      border: none;
+      padding: 3px 6px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 10px;
+    }
+    .remove-btn:hover { background: #cc0044; }
+    .add-btn {
+      background: transparent;
+      color: var(--theme-1);
+      border: 1px solid var(--theme-1);
+      padding: 6px 12px;
+      cursor: pointer;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      transition: all 0.3s ease;
+      font-size: 0.8rem;
+    }
+    .add-btn:hover {
+      background: var(--theme-1);
+      color: #000;
+      box-shadow: 0 0 10px var(--theme-1-glow);
+    }
+    
+    .portfolio-grid-admin {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .portfolio-item {
+      position: relative;
+      border: 1px solid var(--theme-1);
+      padding: 5px;
+      background: rgba(0,0,0,0.8);
+      text-align: center;
+    }
+    .portfolio-item img {
+      width: 100%;
+      height: 100px;
+      object-fit: cover;
+      margin-bottom: 5px;
+    }
+    .portfolio-item p {
+      color: #fff;
+      font-weight: bold;
+      margin-bottom: 5px;
+      font-size: 0.75rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .action-row {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+      margin-bottom: 20px;
+    }
+    .save-btn {
+      font-size: 1rem;
+      padding: 10px 20px;
+    }
+  </style>
+</head>
+<body>
+  <!-- PARTICLES BACKGROUND -->
+  <div id="particles-js" style="position: fixed; inset: 0; z-index: -1; pointer-events: none; background: #000; overflow: hidden;">
+    <div class="bg-blob blob-1"></div>
+    <div class="bg-blob blob-2"></div>
+    <div class="bg-blob blob-3"></div>
+  </div>
+
+  <nav class="navbar" style="background: rgba(0,0,0,0.9); border-bottom: 1px solid rgba(0,234,255,0.2);">
+    <a href="/" class="nav-logo">
+      <img src="SR Logo.png" alt="SR Pixels" style="height: 44px; width: auto;" />
+    </a>
+    <ul class="nav-links" style="margin-left: auto; padding-right: 20px; display: flex; gap: 20px;">
+      <li><a href="/" class="nav-link">BACK TO SITE</a></li>
+      <li><a href="#" class="nav-link" id="logout-btn" style="display:none;" onclick="logout()">LOGOUT</a></li>
+    </ul>
+  </nav>
+
+  <div id="auth-container" class="admin-container" style="max-width: 500px; text-align: center; margin-top: 50px;">
+    <h1 class="admin-title" style="border: none; font-size: 2.5rem; margin-bottom: 10px;">HQ_ACCESS</h1>
+    <p style="color: var(--theme-1); margin-bottom: 30px; letter-spacing: 2px;">AUTHENTICATION REQUIRED</p>
+    
+    <div id="login-form-box" class="admin-section">
+      <div class="card-corner tl"></div><div class="card-corner tr"></div><div class="card-corner bl"></div><div class="card-corner br"></div>
+      <h2 class="admin-subtitle">LOGIN</h2>
+      <div class="form-group"><input type="text" id="login-username" class="form-input" placeholder="Username"></div>
+      <div class="form-group"><input type="password" id="login-password" class="form-input" placeholder="Password"></div>
+      <button class="btn-primary" style="width: 100%; margin-bottom: 15px; justify-content: center;" onclick="login()">AUTHENTICATE</button>
+      <p style="font-size: 12px; color: var(--text-mid); cursor: pointer;" onclick="toggleAuthMode()">No clearance? Request access (Sign up)</p>
+    </div>
+
+    <div id="signup-form-box" class="admin-section" style="display: none;">
+      <div class="card-corner tl"></div><div class="card-corner tr"></div><div class="card-corner bl"></div><div class="card-corner br"></div>
+      <h2 class="admin-subtitle">SIGN UP</h2>
+      <div class="form-group"><input type="text" id="signup-username" class="form-input" placeholder="Username"></div>
+      <div class="form-group"><input type="password" id="signup-password" class="form-input" placeholder="Password"></div>
+      <button class="btn-primary" style="width: 100%; margin-bottom: 15px; justify-content: center;" onclick="signup()">REQUEST CLEARANCE</button>
+      <p style="font-size: 12px; color: var(--text-mid); cursor: pointer;" onclick="toggleAuthMode()">Already have clearance? Login</p>
+    </div>
+  </div>
+
+  <div class="admin-container" id="admin-main" style="display: none;">
+    <h1 class="admin-title" style="text-align: center; border: none; font-size: 3rem;">SYSTEM_OVERRIDE // ADMIN</h1>
+    
+    <form id="admin-form">
+      <!-- TICKER SECTION -->
+      <div class="admin-section">
+        <div class="card-corner tl"></div><div class="card-corner tr"></div><div class="card-corner bl"></div><div class="card-corner br"></div>
+        <h2 class="admin-subtitle">Ticker Bar</h2>
+        <div class="form-group">
+          <label class="form-label">Ticker Text</label>
+          <textarea id="tickerText" class="form-input form-textarea"></textarea>
+        </div>
+      </div>
+
+      <!-- SERVICES SECTION -->
+      <div class="admin-section">
+        <div class="card-corner tl"></div><div class="card-corner tr"></div><div class="card-corner bl"></div><div class="card-corner br"></div>
+        <h2 class="admin-subtitle">Services Section</h2>
+        <div class="form-group">
+          <label class="form-label">Banner Title</label>
+          <input type="text" id="servicesBannerTitle" class="form-input">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Banner Subtext</label>
+          <textarea id="servicesBannerSub" class="form-input form-textarea"></textarea>
+        </div>
+        
+        <h3 class="admin-subtitle" style="margin-top: 30px; font-size: 1rem;">Service Items</h3>
+        <div id="services-container" class="dynamic-list"></div>
+        <button type="button" class="add-btn" onclick="addService()">+ ADD SERVICE</button>
+      </div>
+
+      <!-- PORTFOLIO HEADER -->
+      <div class="admin-section">
+        <div class="card-corner tl"></div><div class="card-corner tr"></div><div class="card-corner bl"></div><div class="card-corner br"></div>
+        <h2 class="admin-subtitle">Portfolio Section Headers</h2>
+        <div class="form-group">
+          <label class="form-label">Portfolio Subtext</label>
+          <textarea id="portfolioSub" class="form-input form-textarea"></textarea>
+        </div>
+      </div>
+
+      <!-- REVIEWS SECTION -->
+      <div class="admin-section">
+        <div class="card-corner tl"></div><div class="card-corner tr"></div><div class="card-corner bl"></div><div class="card-corner br"></div>
+        <h2 class="admin-subtitle">Reviews Section</h2>
+        <div class="form-group">
+          <label class="form-label">Reviews Subtext</label>
+          <textarea id="reviewsSub" class="form-input form-textarea"></textarea>
+        </div>
+        
+        <h3 class="admin-subtitle" style="margin-top: 30px; font-size: 1rem;">Review Items</h3>
+        <div id="reviews-container" class="dynamic-list"></div>
+        <button type="button" class="add-btn" onclick="addReview()">+ ADD REVIEW</button>
+      </div>
+
+      <!-- CONTACT SECTION -->
+      <div class="admin-section">
+        <div class="card-corner tl"></div><div class="card-corner tr"></div><div class="card-corner bl"></div><div class="card-corner br"></div>
+        <h2 class="admin-subtitle">Contact Section</h2>
+        <div class="form-group">
+          <label class="form-label">Contact Subtext</label>
+          <textarea id="contactSub" class="form-input form-textarea"></textarea>
+        </div>
+        
+
+
+        <h3 class="admin-subtitle" style="margin-top: 30px; font-size: 1rem;">Office Details</h3>
+        
+        <div class="form-group">
+          <label class="form-label">Office Names</label>
+          <div id="office-names-container"></div>
+          <button type="button" class="add-btn small" onclick="addOfficeDetail('names')">+ ADD NAME</button>
+        </div>
+
+        <div class="form-group" style="margin-top: 20px;">
+          <label class="form-label">Phone Numbers</label>
+          <div id="office-phones-container"></div>
+          <button type="button" class="add-btn small" onclick="addOfficeDetail('phones')">+ ADD PHONE</button>
+        </div>
+
+        <div class="form-group" style="margin-top: 20px;">
+          <label class="form-label">Locations</label>
+          <div id="office-locations-container"></div>
+          <button type="button" class="add-btn small" onclick="addOfficeDetail('locations')">+ ADD LOCATION</button>
+        </div>
+
+        <div class="form-group" style="margin-top: 20px;">
+          <label class="form-label">Emails / Comms</label>
+          <div id="office-emails-container"></div>
+          <button type="button" class="add-btn small" onclick="addOfficeDetail('emails')">+ ADD EMAIL</button>
+        </div>
+
+        <div class="dynamic-item" style="margin-top: 30px;">
+          <h3 class="admin-subtitle" style="font-size: 1rem;">Direct Protocol (Email)</h3>
+          <div class="form-group"><label class="form-label">Title</label><input type="text" id="directProtocolTitle" class="form-input"></div>
+          <div class="form-group"><label class="form-label">Description</label><textarea id="directProtocolDesc" class="form-input form-textarea"></textarea></div>
+          <div class="form-group"><label class="form-label">Button Text</label><input type="text" id="directProtocolBtn" class="form-input"></div>
+        </div>
+      </div>
+
+      <div class="action-row">
+        <button type="submit" class="btn-primary save-btn">COMMIT ALL TEXT CHANGES</button>
+      </div>
+    </form>
+
+    <!-- PORTFOLIO IMAGES MANAGER -->
+    <div class="admin-section">
+      <div class="card-corner tl"></div><div class="card-corner tr"></div><div class="card-corner bl"></div><div class="card-corner br"></div>
+      <h2 class="admin-subtitle">Portfolio Image Deployments</h2>
+      
+      <div class="dynamic-item">
+        <h3 class="admin-subtitle" style="font-size: 1rem;">Upload New Visual Asset</h3>
+        <div class="form-group">
+          <label class="form-label">Image Hover Name</label>
+          <input type="text" id="newImageName" class="form-input" placeholder="Enter image name...">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Select Image</label>
+          <input type="file" id="newImageFile" class="form-input" accept="image/*" style="padding: 10px; background: rgba(255,255,255,0.05);">
+        </div>
+        <button type="button" class="btn-primary" onclick="uploadImage()">UPLOAD ASSET</button>
+      </div>
+
+      <div class="portfolio-grid-admin" id="portfolio-grid-admin">
+        <!-- Image items loaded dynamically -->
+      </div>
+    </div>
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if(window.particlesJS) {
+        particlesJS("particles-js", {
+          "particles": {
+            "number": { "value": 80, "density": { "enable": true, "value_area": 800 } },
+            "color": { "value": ["#00eaff", "#f3a700", "#7bc142"] },
+            "shape": { "type": "circle" },
+            "opacity": { "value": 0.3, "random": true },
+            "size": { "value": 3, "random": true },
+            "line_linked": { "enable": true, "distance": 150, "color": "#00eaff", "opacity": 0.1, "width": 1 },
+            "move": { "enable": true, "speed": 1.5, "direction": "none", "random": true, "straight": false, "out_mode": "out", "bounce": false }
+          },
+          "interactivity": {
+            "detect_on": "canvas",
+            "events": { "onhover": { "enable": true, "mode": "grab" }, "onclick": { "enable": true, "mode": "push" }, "resize": true },
+            "modes": { "grab": { "distance": 140, "line_linked": { "opacity": 0.5 } } }
+          },
+          "retina_detect": true
+        });
+      }
+    });
+  </script>
+  <script src="admin.js"></script>
+</body>
+</html>
