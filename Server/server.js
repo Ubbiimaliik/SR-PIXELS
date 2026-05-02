@@ -4,7 +4,7 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const multer = require("multer");
 const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
+const path = require("path");
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -14,6 +14,16 @@ app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 // Serve static files from the parent directory
 app.use(express.static("../"));
+
+// Specific route for /admin
+app.get("/admin", (req, res) => {
+  res.sendFile(path.join(__dirname, "../admin.html"));
+});
+
+// Handle cases where /admin is appended to index.html
+app.get("/index.html/admin", (req, res) => {
+  res.redirect("/admin");
+});
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/srp")
@@ -44,19 +54,16 @@ const User = mongoose.model("User", UserSchema);
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
-const JWT_SECRET = process.env.JWT_SECRET || "srpixels-secret-key";
-
-// Auth Middleware
+// Auth Middleware (Simplified, no JWT)
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
-  if (!token) return res.status(401).json({ error: "Access denied. Token missing." });
-
-  jwt.verify(token, JWT_SECRET, (err, user) => {
-    if (err) return res.status(403).json({ error: "Invalid token." });
-    req.user = user;
-    next();
-  });
+  
+  // Basic check for session-based token (mocked for this session)
+  if (!token || token === "null" || token === "undefined") {
+    return res.status(401).json({ error: "Access denied. Login required." });
+  }
+  next();
 };
 
 // Initialize Default Content
@@ -133,8 +140,8 @@ app.post("/api/auth/login", async (req, res) => {
     const valid = await bcrypt.compare(password, user.password);
     if(!valid) return res.status(400).json({ error: "Invalid credentials" });
     
-    const token = jwt.sign({ id: user._id, username }, JWT_SECRET, { expiresIn: '24h' });
-    res.json({ token, message: "Logged in successfully" });
+    // Return a simple session string instead of JWT
+    res.json({ token: `session-${user.username}-${Date.now()}`, message: "Logged in successfully" });
   } catch(err) {
     res.status(500).json({ error: err.message });
   }

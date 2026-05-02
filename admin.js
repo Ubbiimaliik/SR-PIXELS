@@ -1,3 +1,4 @@
+let adminSessionToken = null; // In-memory session, lost on refresh
 let contentData = {
   services: [],
   reviews: []
@@ -39,8 +40,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function checkAuth() {
-  const token = localStorage.getItem("adminToken");
-  if(token) {
+  if(adminSessionToken) {
     document.getElementById("auth-container").style.display = "none";
     document.getElementById("admin-main").style.display = "block";
     document.getElementById("logout-btn").style.display = "block";
@@ -76,7 +76,7 @@ async function login() {
     });
     const data = await res.json();
     if(res.ok) {
-      localStorage.setItem("adminToken", data.token);
+      adminSessionToken = data.token; // Store in memory
       checkAuth();
       showNotification("LOGIN SUCCESSFUL: Admin access granted", "success");
     } else showNotification(data.error || "Login failed", "error");
@@ -101,13 +101,12 @@ async function signup() {
 }
 
 function logout() {
-  localStorage.removeItem("adminToken");
+  adminSessionToken = null;
   checkAuth();
 }
 
 function getAuthHeaders(contentType = "application/json") {
-  const token = localStorage.getItem("adminToken");
-  const headers = { "Authorization": `Bearer ${token}` };
+  const headers = { "Authorization": `Bearer ${adminSessionToken}` };
   if(contentType) headers["Content-Type"] = contentType;
   return headers;
 }
