@@ -59,9 +59,92 @@ function handleEmailClick(email, e) {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
+  // ---- SPLASH SCREEN SEQUENCE ----
+  const splash = document.getElementById("splash-screen");
+  const splashLogo = document.getElementById("splash-logo");
+  const splashTagline = document.getElementById("splash-tagline");
+  const heroContent = document.querySelector(".hero-content");
+  const heroFooter = document.querySelector(".hero-footer");
+
+  // Lock scroll during splash
+  document.body.style.overflow = "hidden";
+
+  // Phase 1: logo animates in via CSS (2.1s total)
+  // Phase 2 at 2.5s: logo exits up
+  setTimeout(() => {
+    if(splashLogo) splashLogo.classList.add("splash-logo-exit");
+    // Phase 3 at 2.8s: tagline fades in
+    setTimeout(() => {
+      if(splashTagline) splashTagline.classList.add("splash-tagline-show");
+      // Phase 4 at 4.0s: whole splash fades out
+      setTimeout(() => {
+        if(splash) splash.classList.add("splash-exit");
+        // Phase 5 at 4.8s: remove splash, unlock scroll, reveal hero
+        setTimeout(() => {
+          if(splash) splash.style.display = "none";
+          document.body.style.overflow = "";
+          if(heroContent) {
+            heroContent.classList.remove("hero-hidden");
+            heroContent.classList.add("hero-reveal");
+          }
+          setTimeout(() => {
+            if(heroFooter) {
+              heroFooter.classList.remove("hero-hidden");
+              heroFooter.classList.add("hero-reveal");
+            }
+          }, 300);
+          // Start scramble after hero is revealed
+          startScramble();
+        }, 800);
+      }, 1200);
+    }, 300);
+  }, 2500);
+
+  function startScramble() {
+    const scrambleEl = document.querySelector('.scramble-text');
+    if(!scrambleEl) return;
+    const words = ["DESIGN.", "BUILD.", "INVENT.", "DEPLOY.", "CLICK."];
+    let wordIndex = 0;
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&*";
+
+    function scramble() {
+      const targetWord = words[wordIndex];
+      let iterations = 0;
+
+      const interval = setInterval(() => {
+        scrambleEl.innerText = targetWord.split("").map((letter, index) => {
+          if(index < iterations) return targetWord[index];
+          return chars[Math.floor(Math.random() * chars.length)];
+        }).join("");
+
+        iterations += 1/3;
+
+        if(iterations >= targetWord.length) {
+          clearInterval(interval);
+          scrambleEl.innerText = targetWord;
+          const pauseTime = (targetWord === "CLICK.") ? 3000 : 800;
+          wordIndex = (wordIndex + 1) % words.length;
+          setTimeout(scramble, pauseTime);
+        }
+      }, 40);
+    }
+    scramble();
+  }
+
   // Navigation & UI basics
+  const navbar = document.getElementById("navbar");
   const hamburger = document.getElementById("hamburger");
   const navLinks = document.getElementById("nav-links");
+  
+  // Navbar scroll visibility
+  window.addEventListener("scroll", () => {
+    if (window.scrollY > 150) {
+      navbar.classList.add("scrolled");
+    } else {
+      navbar.classList.remove("scrolled");
+    }
+  });
+
   if(hamburger) {
     hamburger.addEventListener("click", () => {
       navLinks.classList.toggle("active");
