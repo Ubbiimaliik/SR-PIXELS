@@ -12,6 +12,15 @@
 </head>
 <body>
 
+  <!-- SPLASH SCREEN -->
+  <div id="splash-screen">
+    <div id="splash-inner">
+      <img src="SR Logo.png" id="splash-logo" alt="SR Pixels" />
+      <div id="splash-tagline">FROM CONCEPT TO <span>CLICK.</span></div>
+    </div>
+    <div id="splash-scanline"></div>
+  </div>
+
   <!-- NAVIGATION -->
   <nav id="navbar" class="navbar">
     <a href="#home" class="nav-logo" id="nav-logo">
@@ -29,25 +38,52 @@
   </nav>
 
   <!-- PARTICLES BACKGROUND -->
-  <div id="particles-js" style="position: fixed; inset: 0; z-index: -1; pointer-events: none; background: #000; overflow: hidden;">
-    <div class="bg-blob blob-1"></div>
-    <div class="bg-blob blob-2"></div>
-    <div class="bg-blob blob-3"></div>
-  </div>
+  <div id="particles-js" style="position: fixed; inset: 0; z-index: -1; pointer-events: none; background: transparent; overflow: hidden;"></div>
 
   <!-- HOME SECTION -->
   <section id="home" class="hero-section">
+    <div class="hero-bg-collide">
+      <div class="orb cyan-orb"></div>
+      <div class="orb orange-orb"></div>
+      <div class="orb green-orb"></div>
+    </div>
     <div class="grid-bg"></div>
     <div class="scan-line"></div>
-    <div class="hero-content">
+
+    <div class="hero-content hero-hidden">
+
+      <!-- Tech Badge Row -->
+      <div class="hero-badges">
+        <span class="hero-badge">◆ PRINTING</span>
+        <span class="hero-badge">◆ BRANDING</span>
+        <span class="hero-badge">◆ DIGITAL</span>
+        <span class="hero-badge">◆ GOVT &amp; CORP</span>
+        <span class="hero-badge">◆ EVENTS</span>
+      </div>
+
+      <!-- Headline -->
       <h1 class="hero-headline">
-        WE MAKE YOUR BRAND<br/>
-        <span class="headline-accent">IMPOSSIBLE TO IGNORE</span>
+        FROM CONCEPT TO<br/>
+        <span class="headline-accent scramble-text">CLICK.</span>
       </h1>
+
+      <!-- Subtext -->
       <p class="hero-subtext">
-        Creating high-impact digital and physical brand assets. Expertly crafted<br/>
-        for maximum visibility and engagement.
+        Creating high-impact digital and physical brand assets.<br/>
+        Expertly crafted for maximum visibility and engagement.
       </p>
+
+      <!-- CTA Buttons -->
+      <div class="hero-actions">
+        <a href="#enquiry" class="btn-primary hero-btn">GET A QUOTE ▶</a>
+        <a href="#portfolio" class="btn-outline hero-btn">VIEW OUR WORK</a>
+      </div>
+
+    </div>
+
+    <div class="hero-footer hero-hidden">
+      <div class="hero-footer-text">SCROLL TO EXPLORE</div>
+      <div class="hero-footer-line"></div>
     </div>
   </section>
 
