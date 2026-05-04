@@ -79,38 +79,25 @@ const initializeContent = async () => {
     await Content.create({
       key: "pageContent",
       data: {
-        tickerText: "◆ PRINTING SOLUTIONS — High-Resolution Output Protocols ◆ BRANDING & ADVERTISING — Strategic Visual Deployment ◆ DIGITAL & WEB — Interactive UI/UX Engineering ◆ GOVT & CORPORATE — Institutional Grade Compliance ◆ 500+ PROJECTS DEPLOYED ◆ 8+ YEARS ACTIVE ◆ SR PIXELS — EXCELLENCE WITH PERFECTION",
-        servicesTitle: "Our Services",
-        servicesBannerTitle: "What We Offer",
-        servicesBannerSub: "Explore our comprehensive range of services tailored to elevate your brand.",
-        services: [
-          { id: "svc-print", title: "PRINTING SOLUTIONS", desc: "High-quality printing services including wide format, offset, and digital printing on premium materials.", btnText: "LEARN MORE" },
-          { id: "svc-brand", title: "BRANDING & ADVERTISING", desc: "Strategic visual identity and advertising campaigns designed to maximize your brand's market presence.", btnText: "LEARN MORE" },
-          { id: "svc-govt", title: "GOVT & CORPORATE", desc: "Secure, standardized communication and visual asset management tailored for large-scale organizations.", btnText: "LEARN MORE" },
-          { id: "svc-digital", title: "DIGITAL & WEB", desc: "Interactive websites and digital experiences built with engaging user interfaces and seamless functionality.", btnText: "LEARN MORE" },
-          { id: "svc-event", title: "EVENT MANAGEMENT", desc: "End-to-end event planning, coordination, and execution to deliver memorable brand experiences.", btnText: "LEARN MORE" }
-        ],
-        portfolioTitle: "Our Portfolio",
-        portfolioSub: "A showcase of our recent projects and successful brand deployments.",
-        reviewsTitle: "Client Reviews",
-        reviewsSub: "What our partners say about our work and commitment to excellence.",
-        reviews: [
-          { stars: "★★★★★", text: "\"SR Pixels transformed our brand identity completely. Their attention to detail and precision is unmatched in the industry.\"", author: "- Omni Corp" },
-          { stars: "★★★★★", text: "\"The digital hoarding they installed for us is visually stunning. Excellent communication and flawless execution.\"", author: "- Defense Initiative" },
-          { stars: "★★★★★", text: "\"A highly professional team. They handled our entire corporate compliance documentation with utmost security and design flair.\"", author: "- Nexus Core" },
-          { stars: "★★★★★", text: "\"Our interactive web application was delivered on time and exceeded all our expectations. Highly recommended.\"", author: "- Vanguard Systems" }
-        ],
-        contactTitle: "Contact Us",
-        contactSub: "Get in touch with our team to start your next project.",
-        contactInfo: {
-          name: "Satyam Rajput / Abhishek",
-          phone: "+91 9876543210",
-          location: "SECTOR_7G<br/>NEO_TOKYO_HUB",
-          email: "UPLINK@SRPIXELS.SYS"
-        },
-        directProtocolTitle: "Connect With us",
-        directProtocolDesc: "Require immediate bandwidth? Initiate direct encrypted comms via WhatsApp.",
-        directProtocolBtn: "INITIATE_WA_CHAT"
+        tickerText: "",
+        servicesTitle: "",
+        servicesBannerTitle: "",
+        servicesBannerSub: "",
+        services: [],
+        portfolioTitle: "",
+        portfolioSub: "",
+        reviewsTitle: "",
+        reviewsSub: "",
+        reviews: [],
+        contactTitle: "",
+        contactSub: "",
+        names: [],
+        phones: [],
+        locations: [],
+        emails: [],
+        directProtocolTitle: "",
+        directProtocolDesc: "",
+        directProtocolBtn: ""
       }
     });
   }
