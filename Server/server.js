@@ -37,10 +37,16 @@ const ContentSchema = new mongoose.Schema({
 });
 const Content = mongoose.model("Content", ContentSchema);
 
+const PortfolioFolderSchema = new mongoose.Schema({
+  name: { type: String, required: true }
+});
+const PortfolioFolder = mongoose.model("PortfolioFolder", PortfolioFolderSchema);
+
 const PortfolioImageSchema = new mongoose.Schema({
   name: String,
   image: Buffer,
-  contentType: String
+  contentType: String,
+  folderId: { type: mongoose.Schema.Types.ObjectId, ref: 'PortfolioFolder' }
 });
 const PortfolioImage = mongoose.model("PortfolioImage", PortfolioImageSchema);
 
@@ -168,10 +174,46 @@ app.post("/api/content", authenticateToken, async (req, res) => {
   }
 });
 
-// Get portfolio images metadata
+// Get all portfolio folders
+app.get("/api/folders", async (req, res) => {
+  try {
+    const folders = await PortfolioFolder.find({});
+    res.json(folders);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Create a portfolio folder
+app.post("/api/folders", authenticateToken, async (req, res) => {
+  try {
+    const { name } = req.body;
+    if (!name) return res.status(400).json({ error: "Folder name required" });
+    const folder = new PortfolioFolder({ name });
+    await folder.save();
+    res.json(folder);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Delete a portfolio folder and its images
+app.delete("/api/folders/:id", authenticateToken, async (req, res) => {
+  try {
+    await PortfolioImage.deleteMany({ folderId: req.params.id });
+    await PortfolioFolder.findByIdAndDelete(req.params.id);
+    res.json({ message: "Folder and its images deleted" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Get portfolio images (optionally filtered by folderId)
 app.get("/api/portfolio", async (req, res) => {
   try {
-    const images = await PortfolioImage.find({}, { image: 0 }); // Exclude image buffer
+    const { folderId } = req.query;
+    const query = folderId ? { folderId } : {};
+    const images = await PortfolioImage.find(query, { image: 0 }); // Exclude image buffer
     res.json(images);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -193,11 +235,12 @@ app.get("/api/portfolio/:id/image", async (req, res) => {
 // Upload portfolio image
 app.post("/api/portfolio", authenticateToken, upload.single("image"), async (req, res) => {
   try {
-    const { name } = req.body;
+    const { name, folderId } = req.body;
     const newImage = new PortfolioImage({
       name,
       image: req.file.buffer,
-      contentType: req.file.mimetype
+      contentType: req.file.mimetype,
+      folderId
     });
     await newImage.save();
     res.json({ message: "Image uploaded", id: newImage._id });

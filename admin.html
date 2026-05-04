@@ -283,26 +283,43 @@
       </div>
     </form>
 
-    <!-- PORTFOLIO IMAGES MANAGER -->
+    <!-- PORTFOLIO MANAGER -->
     <div class="admin-section">
       <div class="card-corner tl"></div><div class="card-corner tr"></div><div class="card-corner bl"></div><div class="card-corner br"></div>
-      <h2 class="admin-subtitle">Portfolio Image Deployments</h2>
+      <h2 class="admin-subtitle" id="portfolio-manager-title">Portfolio Folders</h2>
       
-      <div class="dynamic-item">
-        <h3 class="admin-subtitle" style="font-size: 1rem;">Upload New Visual Asset</h3>
-        <div class="form-group">
-          <label class="form-label">Image Hover Name</label>
-          <input type="text" id="newImageName" class="form-input" placeholder="Enter image name...">
+      <!-- Folder List View -->
+      <div id="folder-view">
+        <div class="dynamic-item">
+          <h3 class="admin-subtitle" style="font-size: 1rem;">Create New Folder</h3>
+          <div class="form-group" style="display: flex; gap: 10px;">
+            <input type="text" id="newFolderName" class="form-input" placeholder="Enter folder name..." style="flex: 1;">
+            <button type="button" class="btn-primary" onclick="createFolder()">CREATE FOLDER</button>
+          </div>
         </div>
-        <div class="form-group">
-          <label class="form-label">Select Image</label>
-          <input type="file" id="newImageFile" class="form-input" accept="image/*" style="padding: 10px; background: rgba(255,255,255,0.05);">
+        <div class="portfolio-grid-admin" id="folder-grid-admin">
+          <!-- Folders loaded dynamically -->
         </div>
-        <button type="button" class="btn-primary" onclick="uploadImage()">UPLOAD ASSET</button>
       </div>
 
-      <div class="portfolio-grid-admin" id="portfolio-grid-admin">
-        <!-- Image items loaded dynamically -->
+      <!-- Single Folder Image View -->
+      <div id="image-view" style="display: none;">
+        <button type="button" class="add-btn" onclick="showFolderView()" style="margin-bottom: 20px;">← BACK TO FOLDERS</button>
+        <div class="dynamic-item">
+          <h3 class="admin-subtitle" style="font-size: 1rem;">Upload Image to <span id="current-folder-name"></span></h3>
+          <div class="form-group">
+            <label class="form-label">Image Name (Hover text)</label>
+            <input type="text" id="newImageName" class="form-input" placeholder="Enter image name...">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Select Image</label>
+            <input type="file" id="newImageFile" class="form-input" accept="image/*" style="padding: 10px; background: rgba(255,255,255,0.05);">
+          </div>
+          <button type="button" class="btn-primary" onclick="uploadImage()">UPLOAD ASSET</button>
+        </div>
+        <div class="portfolio-grid-admin" id="image-grid-admin">
+          <!-- Images loaded dynamically -->
+        </div>
       </div>
     </div>
 

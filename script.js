@@ -228,18 +228,22 @@ document.addEventListener("DOMContentLoaded", async () => {
     console.error("Error fetching content:", err);
   }
 
-  // Fetch dynamic portfolio images
+  // Fetch dynamic portfolio folders
+  initPortfolio();
+});
+
+async function initPortfolio() {
   try {
     const timestamp = new Date().getTime();
-    const res = await fetch(`http://localhost:3000/api/portfolio?t=${timestamp}`);
+    const res = await fetch(`http://localhost:3000/api/folders?t=${timestamp}`);
     if(res.ok) {
-      const images = await res.json();
-      renderPortfolio(images);
+      const folders = await res.json();
+      renderPortfolioFolders(folders);
     }
   } catch (err) {
-    console.error("Error fetching images:", err);
+    console.error("Error fetching folders:", err);
   }
-});
+}
 
 function applyContent(data) {
   if(!data || Object.keys(data).length === 0) return;
@@ -416,64 +420,189 @@ function applyContent(data) {
 
 }
 
-function renderPortfolio(images) {
+function renderPortfolioFolders(folders) {
   const grid = document.getElementById("project-grid");
   if(!grid) return;
   
-  // Create some basic CSS for grid if missing
+  // Ensure styles exist
+  ensurePortfolioStyles();
+
+  grid.innerHTML = "";
+  if(!folders || folders.length === 0) {
+    grid.innerHTML = "<p style='color: #849495;'>No portfolio folders available.</p>";
+    return;
+  }
+  
+  folders.forEach(folder => {
+    grid.innerHTML += `
+      <div class="port-item folder-item" onclick="openFolder('${folder._id}', '${folder.name}')">
+        <div class="folder-icon-wrapper">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+          </svg>
+        </div>
+        <div class="port-overlay">${folder.name}</div>
+        <div class="folder-name-tag">${folder.name}</div>
+      </div>
+    `;
+  });
+}
+
+async function openFolder(folderId, folderName) {
+  const grid = document.getElementById("project-grid");
+  if(!grid) return;
+
+  grid.innerHTML = "<p style='color: #849495;'>Loading assets...</p>";
+
+  try {
+    const timestamp = new Date().getTime();
+    const res = await fetch(`http://localhost:3000/api/portfolio?folderId=${folderId}&t=${timestamp}`);
+    if(res.ok) {
+      const images = await res.json();
+      renderPortfolioImages(images, folderName);
+    }
+  } catch (err) {
+    console.error("Error fetching images:", err);
+    grid.innerHTML = "<p style='color: #ff0055;'>Error loading assets.</p>";
+  }
+}
+
+function renderPortfolioImages(images, folderName) {
+  const grid = document.getElementById("project-grid");
+  if(!grid) return;
+
+  grid.innerHTML = "";
+  
+  // Add Back Button and Header
+  const header = document.createElement("div");
+  header.style.gridColumn = "1 / -1";
+  header.style.display = "flex";
+  header.style.alignItems = "center";
+  header.style.gap = "20px";
+  header.style.marginBottom = "20px";
+  header.style.borderBottom = "1px solid rgba(0, 234, 255, 0.2)";
+  header.style.paddingBottom = "10px";
+  
+  header.innerHTML = `
+    <button class="btn-themed" onclick="initPortfolio()" style="padding: 5px 15px; font-size: 12px;">← BACK</button>
+    <h3 style="color: #fff; margin: 0; font-size: 1.2rem; letter-spacing: 2px;">${folderName.toUpperCase()}</h3>
+  `;
+  grid.appendChild(header);
+
+  if(images.length === 0) {
+    const msg = document.createElement("p");
+    msg.style.color = "#849495";
+    msg.innerText = "No images in this folder.";
+    grid.appendChild(msg);
+    return;
+  }
+  
+  images.forEach(img => {
+    const src = `http://localhost:3000/api/portfolio/${img._id}/image?t=${new Date().getTime()}`;
+    const item = document.createElement("div");
+    item.className = "port-item";
+    item.onclick = () => openLightbox(src);
+    item.innerHTML = `
+      <img src="${src}" alt="${img.name}" />
+      <div class="port-overlay">${img.name}</div>
+    `;
+    grid.appendChild(item);
+  });
+
+  // Setup lightbox if not exists
+  ensureLightbox();
+}
+
+
+function ensurePortfolioStyles() {
   if(!document.getElementById("dynamic-port-style")) {
     const style = document.createElement("style");
     style.id = "dynamic-port-style";
     style.innerHTML = `
       #project-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
         gap: 30px;
         padding: 20px 0;
       }
       .port-item {
         position: relative;
         overflow: hidden;
-        border-radius: 8px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.5);
-        border: 1px solid #00eaff;
+        border-radius: 4px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        border: 1px solid rgba(0, 234, 255, 0.2);
         cursor: pointer;
+        background: rgba(14, 21, 22, 0.8);
+        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+      }
+      .port-item:hover {
+        border-color: #00eaff;
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(0, 234, 255, 0.15);
       }
       .port-item img {
         width: 100%;
         height: 250px;
         object-fit: cover;
         display: block;
-        transition: transform 0.4s ease;
+        transition: transform 0.6s ease;
       }
       .port-item:hover img {
-        transform: scale(1.1);
+        transform: scale(1.05);
       }
       .port-overlay {
         position: absolute;
         bottom: -100%;
         left: 0;
         right: 0;
-        background: rgba(0, 0, 0, 0.85);
+        background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
         color: #00eaff;
-        padding: 8px 12px;
+        padding: 20px 15px 10px;
         text-align: center;
         transition: bottom 0.4s ease;
         font-weight: 700;
-        font-size: 0.9rem;
+        font-size: 0.85rem;
         letter-spacing: 1px;
-        border-top: 1px solid #00eaff;
+        text-transform: uppercase;
       }
       .port-item:hover .port-overlay {
         bottom: 0;
       }
+      
+      /* Folder Specific */
+      .folder-item {
+        height: 250px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0, 234, 255, 0.03);
+      }
+      .folder-icon-wrapper {
+        width: 80px;
+        height: 80px;
+        color: #00eaff;
+        margin-bottom: 15px;
+        transition: transform 0.3s ease;
+      }
+      .folder-item:hover .folder-icon-wrapper {
+        transform: scale(1.1);
+      }
+      .folder-name-tag {
+        color: #fff;
+        font-weight: 800;
+        font-size: 1.1rem;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+      }
+
       #lightbox-overlay {
         position: fixed;
         top: 0;
         left: 0;
         right: 0;
         bottom: 0;
-        background: rgba(0, 0, 0, 0.9);
+        background: rgba(0, 0, 0, 0.95);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -488,25 +617,24 @@ function renderPortfolio(images) {
       }
       #lightbox-img {
         max-width: 90%;
-        max-height: 90%;
-        border: 2px solid #00eaff;
-        box-shadow: 0 0 20px rgba(0, 234, 255, 0.5);
-        border-radius: 8px;
+        max-height: 85%;
+        border: 1px solid rgba(0, 234, 255, 0.3);
+        box-shadow: 0 0 50px rgba(0, 234, 255, 0.2);
       }
       #lightbox-close {
         position: absolute;
         top: 20px;
         right: 30px;
-        color: #00eaff;
+        color: #fff;
         font-size: 40px;
         cursor: pointer;
-        font-weight: bold;
       }
     `;
     document.head.appendChild(style);
   }
+}
 
-  // Setup lightbox container
+function ensureLightbox() {
   if (!document.getElementById("lightbox-overlay")) {
     const lightbox = document.createElement("div");
     lightbox.id = "lightbox-overlay";
@@ -519,29 +647,12 @@ function renderPortfolio(images) {
     lightbox.addEventListener("click", () => {
       lightbox.classList.remove("active");
     });
+    
+    window.openLightbox = function(src) {
+      const overlay = document.getElementById("lightbox-overlay");
+      const img = document.getElementById("lightbox-img");
+      img.src = src;
+      overlay.classList.add("active");
+    };
   }
-
-  // Expose lightbox function globally for onclick
-  window.openLightbox = function(src) {
-    const overlay = document.getElementById("lightbox-overlay");
-    const img = document.getElementById("lightbox-img");
-    img.src = src;
-    overlay.classList.add("active");
-  };
-
-  grid.innerHTML = "";
-  if(images.length === 0) {
-    grid.innerHTML = "<p style='color: #849495;'>No portfolio images available.</p>";
-    return;
-  }
-  
-  images.forEach(img => {
-    const src = `http://localhost:3000/api/portfolio/${img._id}/image?t=${new Date().getTime()}`;
-    grid.innerHTML += `
-      <div class="port-item" onclick="openLightbox('${src}')">
-        <img src="${src}" alt="${img.name}" />
-        <div class="port-overlay">${img.name}</div>
-      </div>
-    `;
-  });
 }

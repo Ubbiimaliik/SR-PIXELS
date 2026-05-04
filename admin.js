@@ -3,6 +3,7 @@ let contentData = {
   services: [],
   reviews: []
 };
+let currentFolderId = null;
 
 function showNotification(message, type = 'success') {
   let container = document.getElementById('custom-notification-container');
@@ -45,7 +46,7 @@ function checkAuth() {
     document.getElementById("admin-main").style.display = "block";
     document.getElementById("logout-btn").style.display = "block";
     fetchContent();
-    fetchImages();
+    fetchFolders();
   } else {
     document.getElementById("auth-container").style.display = "block";
     document.getElementById("admin-main").style.display = "none";
@@ -327,12 +328,95 @@ document.getElementById("admin-form").addEventListener("submit", async (e) => {
   }
 });
 
-async function fetchImages() {
+// --- PORTFOLIO FOLDER MANAGEMENT ---
+
+async function fetchFolders() {
   try {
     const timestamp = new Date().getTime();
-    const res = await fetch(`http://localhost:3000/api/portfolio?t=${timestamp}`);
+    const res = await fetch(`http://localhost:3000/api/folders?t=${timestamp}`);
+    const folders = await res.json();
+    const grid = document.getElementById("folder-grid-admin");
+    grid.innerHTML = "";
+    folders.forEach(folder => {
+      grid.innerHTML += `
+        <div class="portfolio-item" style="cursor: pointer;" onclick="enterFolder('${folder._id}', '${folder.name}')">
+          <div style="font-size: 3rem; color: var(--theme-1); margin-bottom: 10px;">📁</div>
+          <p>${folder.name}</p>
+          <button type="button" class="btn-primary" style="background: #ff0055; border-color: #ff0055; font-size: 10px; padding: 4px 8px;" onclick="event.stopPropagation(); deleteFolder('${folder._id}')">DELETE</button>
+        </div>
+      `;
+    });
+  } catch(err) {
+    console.error("Failed to fetch folders", err);
+  }
+}
+
+async function createFolder() {
+  const name = document.getElementById("newFolderName").value.trim();
+  if(!name) return showNotification("Enter folder name", "warning");
+  try {
+    const res = await fetch("http://localhost:3000/api/folders", {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ name })
+    });
+    if(res.ok) {
+      showNotification("FOLDER CREATED", "success");
+      document.getElementById("newFolderName").value = "";
+      fetchFolders();
+    } else {
+      const data = await res.json();
+      showNotification(data.error || "Failed to create folder", "error");
+    }
+  } catch(err) {
+    console.error(err);
+    showNotification("System error", "error");
+  }
+}
+
+async function deleteFolder(id) {
+  if(!confirm("Delete this folder and ALL images inside?")) return;
+  try {
+    const res = await fetch(`http://localhost:3000/api/folders/${id}`, {
+      method: "DELETE",
+      headers: getAuthHeaders(null)
+    });
+    if(res.ok) {
+      showNotification("FOLDER DELETED", "success");
+      fetchFolders();
+    } else {
+      showNotification("Delete failed", "error");
+    }
+  } catch(err) {
+    console.error(err);
+    showNotification("System error", "error");
+  }
+}
+
+function enterFolder(id, name) {
+  currentFolderId = id;
+  document.getElementById("current-folder-name").innerText = name;
+  document.getElementById("folder-view").style.display = "none";
+  document.getElementById("image-view").style.display = "block";
+  document.getElementById("portfolio-manager-title").innerText = `Folder: ${name}`;
+  fetchImages();
+}
+
+function showFolderView() {
+  currentFolderId = null;
+  document.getElementById("folder-view").style.display = "block";
+  document.getElementById("image-view").style.display = "none";
+  document.getElementById("portfolio-manager-title").innerText = "Portfolio Folders";
+  fetchFolders();
+}
+
+async function fetchImages() {
+  if(!currentFolderId) return;
+  try {
+    const timestamp = new Date().getTime();
+    const res = await fetch(`http://localhost:3000/api/portfolio?folderId=${currentFolderId}&t=${timestamp}`);
     const images = await res.json();
-    const grid = document.getElementById("portfolio-grid-admin");
+    const grid = document.getElementById("image-grid-admin");
     grid.innerHTML = "";
     images.forEach(img => {
       grid.innerHTML += `
@@ -358,14 +442,20 @@ async function uploadImage() {
     return;
   }
 
+  if(!currentFolderId) {
+    showNotification("No folder selected.", "error");
+    return;
+  }
+
   const formData = new FormData();
   formData.append("name", name);
   formData.append("image", file);
+  formData.append("folderId", currentFolderId);
 
   try {
     const res = await fetch("http://localhost:3000/api/portfolio", {
       method: "POST",
-      headers: getAuthHeaders(null), // null to let browser set boundary for FormData
+      headers: getAuthHeaders(null),
       body: formData
     });
     if(res.ok) {
