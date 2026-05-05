@@ -25,6 +25,11 @@ app.get("/index.html/admin", (req, res) => {
   res.redirect("/admin");
 });
 
+// Specific route for /products
+app.get("/products", (req, res) => {
+  res.sendFile(path.join(__dirname, "../products.html"));
+});
+
 // Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/srp")
   .then(() => console.log("Connected to MongoDB"))

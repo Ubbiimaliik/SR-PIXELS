@@ -66,39 +66,56 @@ document.addEventListener("DOMContentLoaded", async () => {
   const heroContent = document.querySelector(".hero-content");
   const heroFooter = document.querySelector(".hero-footer");
 
-  // Lock scroll during splash
-  document.body.style.overflow = "hidden";
+  const hasSeenSplash = sessionStorage.getItem("splashSeen");
 
-  // Phase 1: logo animates in via CSS (2.1s total)
-  // Phase 2 at 2.5s: logo exits up
-  setTimeout(() => {
-    if(splashLogo) splashLogo.classList.add("splash-logo-exit");
-    // Phase 3 at 2.8s: tagline fades in
+  if (hasSeenSplash) {
+    // Skip splash screen immediately
+    if(splash) splash.style.display = "none";
+    if(heroContent) {
+      heroContent.classList.remove("hero-hidden");
+      heroContent.classList.add("hero-reveal");
+    }
+    if(heroFooter) {
+      heroFooter.classList.remove("hero-hidden");
+      heroFooter.classList.add("hero-reveal");
+    }
+    startScramble();
+  } else {
+    // Lock scroll during splash
+    document.body.style.overflow = "hidden";
+    sessionStorage.setItem("splashSeen", "true");
+
+    // Phase 1: logo animates in via CSS (2.1s total)
+    // Phase 2 at 2.5s: logo exits up
     setTimeout(() => {
-      if(splashTagline) splashTagline.classList.add("splash-tagline-show");
-      // Phase 4 at 4.0s: whole splash fades out
+      if(splashLogo) splashLogo.classList.add("splash-logo-exit");
+      // Phase 3 at 2.8s: tagline fades in
       setTimeout(() => {
-        if(splash) splash.classList.add("splash-exit");
-        // Phase 5 at 4.8s: remove splash, unlock scroll, reveal hero
+        if(splashTagline) splashTagline.classList.add("splash-tagline-show");
+        // Phase 4 at 4.0s: whole splash fades out
         setTimeout(() => {
-          if(splash) splash.style.display = "none";
-          document.body.style.overflow = "";
-          if(heroContent) {
-            heroContent.classList.remove("hero-hidden");
-            heroContent.classList.add("hero-reveal");
-          }
+          if(splash) splash.classList.add("splash-exit");
+          // Phase 5 at 4.8s: remove splash, unlock scroll, reveal hero
           setTimeout(() => {
-            if(heroFooter) {
-              heroFooter.classList.remove("hero-hidden");
-              heroFooter.classList.add("hero-reveal");
+            if(splash) splash.style.display = "none";
+            document.body.style.overflow = "";
+            if(heroContent) {
+              heroContent.classList.remove("hero-hidden");
+              heroContent.classList.add("hero-reveal");
             }
-          }, 300);
-          // Start scramble after hero is revealed
-          startScramble();
-        }, 800);
-      }, 1200);
-    }, 300);
-  }, 2500);
+            setTimeout(() => {
+              if(heroFooter) {
+                heroFooter.classList.remove("hero-hidden");
+                heroFooter.classList.add("hero-reveal");
+              }
+            }, 300);
+            // Start scramble after hero is revealed
+            startScramble();
+          }, 800);
+        }, 1200);
+      }, 300);
+    }, 2500);
+  }
 
   function startScramble() {
     const scrambleEl = document.querySelector('.scramble-text');
@@ -180,6 +197,33 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Set initial service val
     const activeBtn = document.querySelector(".svc-btn.active");
     if(activeBtn) serviceVal.value = activeBtn.innerText;
+  }
+
+  // Check for enquiry list from products page
+  const storedEnquiry = sessionStorage.getItem('enquiryList');
+  const briefTextarea = document.getElementById("project-brief");
+  if (storedEnquiry && briefTextarea) {
+    try {
+      const list = JSON.parse(storedEnquiry);
+      if (list.length > 0) {
+        let msg = "I am interested in enquiring about the following items:\n";
+        list.forEach((item, index) => {
+          msg += `${index + 1}. ${item.title} (${item.category})\n`;
+        });
+        briefTextarea.value = msg;
+        
+        // Optionally switch service category to "Printing" or "Others"
+        // and scroll to the form
+        setTimeout(() => {
+          const formSection = document.getElementById("enquiry");
+          if (formSection) formSection.scrollIntoView({ behavior: 'smooth' });
+        }, 500);
+      }
+      // Clear the storage so it doesn't persist on refresh
+      sessionStorage.removeItem('enquiryList');
+    } catch (e) {
+      console.error("Error parsing enquiry list", e);
+    }
   }
 
   if(enquiryForm) {
