@@ -71,7 +71,7 @@ async function login() {
   const p = document.getElementById("login-password").value;
   if(!u || !p) return showNotification("Enter credentials", "warning");
   try {
-    const res = await fetch("http://localhost:3000/api/auth/login", {
+    const res = await fetch("https://sr-pixels-kle9.onrender.com//api/auth/login", {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username: u, password: p })
     });
@@ -89,7 +89,7 @@ async function signup() {
   const p = document.getElementById("signup-password").value;
   if(!u || !p) return showNotification("Enter credentials", "warning");
   try {
-    const res = await fetch("http://localhost:3000/api/auth/signup", {
+    const res = await fetch("https://sr-pixels-kle9.onrender.com//api/auth/signup", {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username: u, password: p })
     });
@@ -115,7 +115,7 @@ function getAuthHeaders(contentType = "application/json") {
 async function fetchContent() {
   try {
     const timestamp = new Date().getTime();
-    const res = await fetch(`http://localhost:3000/api/content?t=${timestamp}`);
+    const res = await fetch(`https://sr-pixels-kle9.onrender.com//api/content?t=${timestamp}`);
     const data = await res.json();
     if(data && Object.keys(data).length > 0) {
       contentData = data;
@@ -312,7 +312,7 @@ document.getElementById("admin-form").addEventListener("submit", async (e) => {
   contentData.directProtocolBtn = document.getElementById("directProtocolBtn").value;
 
   try {
-    const res = await fetch("http://localhost:3000/api/content", {
+    const res = await fetch("https://sr-pixels-kle9.onrender.com//api/content", {
       method: "POST",
       headers: getAuthHeaders(),
       body: JSON.stringify({ data: contentData })
@@ -333,7 +333,7 @@ document.getElementById("admin-form").addEventListener("submit", async (e) => {
 async function fetchFolders() {
   try {
     const timestamp = new Date().getTime();
-    const res = await fetch(`http://localhost:3000/api/folders?t=${timestamp}`);
+    const res = await fetch(`https://sr-pixels-kle9.onrender.com//api/folders?t=${timestamp}`);
     const folders = await res.json();
     const grid = document.getElementById("folder-grid-admin");
     grid.innerHTML = "";
@@ -355,7 +355,7 @@ async function createFolder() {
   const name = document.getElementById("newFolderName").value.trim();
   if(!name) return showNotification("Enter folder name", "warning");
   try {
-    const res = await fetch("http://localhost:3000/api/folders", {
+    const res = await fetch("https://sr-pixels-kle9.onrender.com//api/folders", {
       method: "POST",
       headers: getAuthHeaders(),
       body: JSON.stringify({ name })
@@ -377,7 +377,7 @@ async function createFolder() {
 async function deleteFolder(id) {
   if(!confirm("Delete this folder and ALL images inside?")) return;
   try {
-    const res = await fetch(`http://localhost:3000/api/folders/${id}`, {
+    const res = await fetch(`https://sr-pixels-kle9.onrender.com//api/folders/${id}`, {
       method: "DELETE",
       headers: getAuthHeaders(null)
     });
@@ -414,14 +414,14 @@ async function fetchImages() {
   if(!currentFolderId) return;
   try {
     const timestamp = new Date().getTime();
-    const res = await fetch(`http://localhost:3000/api/portfolio?folderId=${currentFolderId}&t=${timestamp}`);
+    const res = await fetch(`https://sr-pixels-kle9.onrender.com//api/portfolio?folderId=${currentFolderId}&t=${timestamp}`);
     const images = await res.json();
     const grid = document.getElementById("image-grid-admin");
     grid.innerHTML = "";
     images.forEach(img => {
       grid.innerHTML += `
         <div class="portfolio-item">
-          <img src="http://localhost:3000/api/portfolio/${img._id}/image?t=${new Date().getTime()}" alt="${img.name}" />
+          <img src="https://sr-pixels-kle9.onrender.com//api/portfolio/${img._id}/image?t=${new Date().getTime()}" alt="${img.name}" />
           <p>${img.name}</p>
           <button type="button" class="btn-primary" style="background: #ff0055; border-color: #ff0055;" onclick="deleteImage('${img._id}')">DELETE</button>
         </div>
@@ -453,7 +453,7 @@ async function uploadImage() {
   formData.append("folderId", currentFolderId);
 
   try {
-    const res = await fetch("http://localhost:3000/api/portfolio", {
+    const res = await fetch("https://sr-pixels-kle9.onrender.com//api/portfolio", {
       method: "POST",
       headers: getAuthHeaders(null),
       body: formData
@@ -475,7 +475,7 @@ async function uploadImage() {
 async function deleteImage(id) {
   if(!confirm("Are you sure you want to permanently delete this visual asset?")) return;
   try {
-    const res = await fetch(`http://localhost:3000/api/portfolio/${id}`, {
+    const res = await fetch(`https://sr-pixels-kle9.onrender.com//api/portfolio/${id}`, {
       method: "DELETE",
       headers: getAuthHeaders(null)
     });

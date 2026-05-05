@@ -263,7 +263,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Fetch dynamic content
   try {
     const timestamp = new Date().getTime();
-    const res = await fetch(`http://localhost:3000/api/content?t=${timestamp}`);
+    const res = await fetch(`https://sr-pixels-kle9.onrender.com//api/content?t=${timestamp}`);
     if(res.ok) {
       const data = await res.json();
       applyContent(data);
@@ -279,7 +279,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 async function initPortfolio() {
   try {
     const timestamp = new Date().getTime();
-    const res = await fetch(`http://localhost:3000/api/folders?t=${timestamp}`);
+    const res = await fetch(`https://sr-pixels-kle9.onrender.com//api/folders?t=${timestamp}`);
     if(res.ok) {
       const folders = await res.json();
       renderPortfolioFolders(folders);
@@ -500,7 +500,7 @@ async function openFolder(folderId, folderName) {
 
   try {
     const timestamp = new Date().getTime();
-    const res = await fetch(`http://localhost:3000/api/portfolio?folderId=${folderId}&t=${timestamp}`);
+    const res = await fetch(`https://sr-pixels-kle9.onrender.com//api/portfolio?folderId=${folderId}&t=${timestamp}`);
     if(res.ok) {
       const images = await res.json();
       renderPortfolioImages(images, folderName);
@@ -542,7 +542,7 @@ function renderPortfolioImages(images, folderName) {
   }
   
   images.forEach(img => {
-    const src = `http://localhost:3000/api/portfolio/${img._id}/image?t=${new Date().getTime()}`;
+    const src = `https://sr-pixels-kle9.onrender.com//api/portfolio/${img._id}/image?t=${new Date().getTime()}`;
     const item = document.createElement("div");
     item.className = "port-item";
     item.onclick = () => openLightbox(src);
