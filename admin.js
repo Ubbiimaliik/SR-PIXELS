@@ -1,4 +1,4 @@
-let adminSessionToken = null; // In-memory session, lost on refresh
+let adminSessionToken = sessionStorage.getItem("adminToken"); 
 let contentData = {
   services: [],
   reviews: []
@@ -77,7 +77,8 @@ async function login() {
     });
     const data = await res.json();
     if(res.ok) {
-      adminSessionToken = data.token; // Store in memory
+      adminSessionToken = data.token;
+      sessionStorage.setItem("adminToken", data.token);
       checkAuth();
       showNotification("LOGIN SUCCESSFUL: Admin access granted", "success");
     } else showNotification(data.error || "Login failed", "error");
@@ -103,6 +104,7 @@ async function signup() {
 
 function logout() {
   adminSessionToken = null;
+  sessionStorage.removeItem("adminToken");
   checkAuth();
 }
 

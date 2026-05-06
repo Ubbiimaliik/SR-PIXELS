@@ -62,6 +62,23 @@ const UserSchema = new mongoose.Schema({
 });
 const User = mongoose.model("User", UserSchema);
 
+const ContentImageSchema = new mongoose.Schema({
+  key: { type: String, unique: true },
+  image: Buffer,
+  contentType: String
+});
+const ContentImage = mongoose.model("ContentImage", ContentImageSchema);
+
+const ProductSchema = new mongoose.Schema({
+  title: String,
+  desc: String,
+  category: String,
+  badge: String,
+  image: Buffer,
+  contentType: String
+});
+const Product = mongoose.model("Product", ProductSchema);
+
 // Multer setup for in-memory storage
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
@@ -80,8 +97,9 @@ const authenticateToken = (req, res, next) => {
 
 // Initialize Default Content
 const initializeContent = async () => {
-  const existing = await Content.findOne({ key: "pageContent" });
-  if (!existing) {
+  // Home Page Content
+  const existingHome = await Content.findOne({ key: "pageContent" });
+  if (!existingHome) {
     await Content.create({
       key: "pageContent",
       data: {
@@ -104,6 +122,30 @@ const initializeContent = async () => {
         directProtocolTitle: "",
         directProtocolDesc: "",
         directProtocolBtn: ""
+      }
+    });
+  }
+
+  // Product Page Content
+  const existingProduct = await Content.findOne({ key: "productContent" });
+  if (!existingProduct) {
+    await Content.create({
+      key: "productContent",
+      data: {
+        heroTitle: "PRINT<br/><span class=\"headline-accent flicker-text\" style=\"color: var(--orange); text-shadow: 0 0 20px var(--orange-glow-strong);\">BRAND</span><br/>STAND OUT",
+        heroSub: "High-fidelity printing and corporate branding solutions designed for businesses that demand precision and professional execution.",
+        featuredTitle: "Featured Solutions",
+        featuredLargeTitle: "Corporate Signage",
+        featuredLargeDesc: "High-visibility 3D lettering and illuminated signs designed to make your storefront stand out.",
+        featuredSmall1Title: "Vehicle Wraps",
+        featuredSmall1Tag: "MOBILE ADVERTISING",
+        featuredSmall2Title: "Offset Printing",
+        featuredSmall2Tag: "BULK MEDIA",
+        collectionTitle: "PRINTING & BRANDING COLLECTION",
+        collectionDesc: "Elevate your corporate identity with our comprehensive suite of printing and branding materials, engineered for uncompromising quality.",
+        catalogTitle: "Our Products",
+        ctaTitle: "Need custom solutions?",
+        ctaDesc: "Our team can design and produce bespoke materials that perfectly align with your brand requirements and specifications."
       }
     });
   }
@@ -267,6 +309,111 @@ app.delete("/api/portfolio/:id", authenticateToken, async (req, res) => {
   try {
     await PortfolioImage.findByIdAndDelete(req.params.id);
     res.json({ message: "Image deleted" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// --- PRODUCT PAGE ENDPOINTS ---
+
+// Get product page content
+app.get("/api/products-content", async (req, res) => {
+  try {
+    const content = await Content.findOne({ key: "productContent" });
+    res.json(content ? content.data : {});
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Update product page content
+app.post("/api/products-content", authenticateToken, async (req, res) => {
+  try {
+    const { data } = req.body;
+    await Content.findOneAndUpdate({ key: "productContent" }, { data }, { upsert: true });
+    res.json({ message: "Product content updated successfully" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Get all products
+app.get("/api/products", async (req, res) => {
+  try {
+    const { category } = req.query;
+    const query = category && category !== "all" ? { category } : {};
+    const products = await Product.find(query, { image: 0 }); // Exclude image buffer
+    res.json(products);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Get single product image
+app.get("/api/products/:id/image", async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    if (!product || !product.image) return res.status(404).send("Not found");
+    res.set("Content-Type", product.contentType);
+    res.send(product.image);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Upload/Create product
+app.post("/api/products", authenticateToken, upload.single("image"), async (req, res) => {
+  try {
+    const { title, desc, category, badge } = req.body;
+    const newProduct = new Product({
+      title,
+      desc,
+      category,
+      badge,
+      image: req.file ? req.file.buffer : null,
+      contentType: req.file ? req.file.mimetype : null
+    });
+    await newProduct.save();
+    res.json({ message: "Product created", id: newProduct._id });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Delete product
+app.delete("/api/products/:id", authenticateToken, async (req, res) => {
+  try {
+    await Product.findByIdAndDelete(req.params.id);
+    res.json({ message: "Product deleted" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// --- CONTENT IMAGE ENDPOINTS ---
+
+// Get content image by key
+app.get("/api/content-images/:key", async (req, res) => {
+  try {
+    const img = await ContentImage.findOne({ key: req.params.key });
+    if (!img || !img.image) return res.status(404).send("Not found");
+    res.set("Content-Type", img.contentType);
+    res.send(img.image);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Upload/Update content image
+app.post("/api/content-images/:key", authenticateToken, upload.single("image"), async (req, res) => {
+  try {
+    const { key } = req.params;
+    const update = {
+      image: req.file.buffer,
+      contentType: req.file.mimetype
+    };
+    await ContentImage.findOneAndUpdate({ key }, update, { upsert: true });
+    res.json({ message: "Content image updated", key });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
