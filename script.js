@@ -585,7 +585,6 @@ function ensurePortfolioStyles() {
       }
       .port-item:hover {
         border-color: #00eaff;
-        transform: translateY(-5px);
         box-shadow: 0 15px 40px rgba(0, 234, 255, 0.15);
       }
       .port-item img {
@@ -593,10 +592,7 @@ function ensurePortfolioStyles() {
         height: 250px;
         object-fit: cover;
         display: block;
-        transition: transform 0.6s ease;
-      }
-      .port-item:hover img {
-        transform: scale(1.05);
+        transition: opacity 0.4s ease;
       }
       .port-overlay {
         position: absolute;
@@ -612,10 +608,11 @@ function ensurePortfolioStyles() {
         font-size: 0.85rem;
         letter-spacing: 1px;
         text-transform: uppercase;
+        pointer-events: none;
       }
-      .port-item:hover .port-overlay {
-        bottom: 0;
-      }
+      /* Only show overlay for images, not folders, and only if explicitly desired. 
+         Actually, the user said "remove the name shown when hovered over folders", 
+         so we will disable the hover-to-show logic for the overlay. */
       
       /* Folder Specific */
       .folder-item {
@@ -631,10 +628,7 @@ function ensurePortfolioStyles() {
         height: 80px;
         color: #00eaff;
         margin-bottom: 15px;
-        transition: transform 0.3s ease;
-      }
-      .folder-item:hover .folder-icon-wrapper {
-        transform: scale(1.1);
+        transition: color 0.3s ease;
       }
       .folder-name-tag {
         color: #fff;
@@ -652,11 +646,10 @@ function ensurePortfolioStyles() {
         height: 100% !important;
         object-fit: cover;
         opacity: 0.6;
-        transition: opacity 0.4s ease, transform 0.6s ease;
+        transition: opacity 0.4s ease;
       }
       .folder-item:hover .folder-cover-img {
         opacity: 0.9;
-        transform: scale(1.1);
       }
 
       #lightbox-overlay {
