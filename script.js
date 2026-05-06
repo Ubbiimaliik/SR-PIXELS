@@ -263,7 +263,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Fetch dynamic content
   try {
     const timestamp = new Date().getTime();
-    const res = await fetch(`https://sr-pixels-kle9.onrender.com/api/content?t=${timestamp}`);
+    const res = await fetch(`http://localhost:3000/api/content?t=${timestamp}`);
     if(res.ok) {
       const data = await res.json();
       applyContent(data);
@@ -279,7 +279,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 async function initPortfolio() {
   try {
     const timestamp = new Date().getTime();
-    const res = await fetch(`https://sr-pixels-kle9.onrender.com/api/folders?t=${timestamp}`);
+    const res = await fetch(`http://localhost:3000/api/folders?t=${timestamp}`);
     if(res.ok) {
       const folders = await res.json();
       renderPortfolioFolders(folders);
@@ -478,13 +478,15 @@ function renderPortfolioFolders(folders) {
   }
   
   folders.forEach(folder => {
+    const coverUrl = folder.coverPhotoId ? `http://localhost:3000/api/portfolio/${folder.coverPhotoId}/image?t=${new Date().getTime()}` : null;
     grid.innerHTML += `
       <div class="port-item folder-item" onclick="openFolder('${folder._id}', '${folder.name}')">
+        ${coverUrl ? `<img src="${coverUrl}" alt="${folder.name}" class="folder-cover-img" />` : `
         <div class="folder-icon-wrapper">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
           </svg>
-        </div>
+        </div>`}
         <div class="port-overlay">${folder.name}</div>
         <div class="folder-name-tag">${folder.name}</div>
       </div>
@@ -500,7 +502,7 @@ async function openFolder(folderId, folderName) {
 
   try {
     const timestamp = new Date().getTime();
-    const res = await fetch(`https://sr-pixels-kle9.onrender.com/api/portfolio?folderId=${folderId}&t=${timestamp}`);
+    const res = await fetch(`http://localhost:3000/api/portfolio?folderId=${folderId}&t=${timestamp}`);
     if(res.ok) {
       const images = await res.json();
       renderPortfolioImages(images, folderName);
@@ -541,11 +543,13 @@ function renderPortfolioImages(images, folderName) {
     return;
   }
   
-  images.forEach(img => {
-    const src = `https://sr-pixels-kle9.onrender.com/api/portfolio/${img._id}/image?t=${new Date().getTime()}`;
+  window.currentLightboxImages = images.map(img => `http://localhost:3000/api/portfolio/${img._id}/image?t=${new Date().getTime()}`);
+  
+  images.forEach((img, index) => {
+    const src = `http://localhost:3000/api/portfolio/${img._id}/image?t=${new Date().getTime()}`;
     const item = document.createElement("div");
     item.className = "port-item";
-    item.onclick = () => openLightbox(src);
+    item.onclick = () => openLightbox(index);
     item.innerHTML = `
       <img src="${src}" alt="${img.name}" />
       <div class="port-overlay">${img.name}</div>
@@ -638,6 +642,21 @@ function ensurePortfolioStyles() {
         font-size: 1.1rem;
         letter-spacing: 2px;
         text-transform: uppercase;
+        z-index: 2;
+      }
+      .folder-cover-img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100% !important;
+        object-fit: cover;
+        opacity: 0.6;
+        transition: opacity 0.4s ease, transform 0.6s ease;
+      }
+      .folder-item:hover .folder-cover-img {
+        opacity: 0.9;
+        transform: scale(1.1);
       }
 
       #lightbox-overlay {
@@ -684,19 +703,76 @@ function ensureLightbox() {
     lightbox.id = "lightbox-overlay";
     lightbox.innerHTML = `
       <div id="lightbox-close">&times;</div>
+      <div id="lightbox-prev" class="lightbox-nav">&larr;</div>
       <img id="lightbox-img" src="" alt="Full Size">
+      <div id="lightbox-next" class="lightbox-nav">&rarr;</div>
     `;
     document.body.appendChild(lightbox);
 
-    lightbox.addEventListener("click", () => {
-      lightbox.classList.remove("active");
+    // Lightbox Nav Styles
+    const style = document.createElement("style");
+    style.innerHTML = `
+      .lightbox-nav {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #fff;
+        font-size: 3rem;
+        cursor: pointer;
+        padding: 20px;
+        background: rgba(0,0,0,0.3);
+        user-select: none;
+        transition: all 0.3s ease;
+        z-index: 10001;
+      }
+      .lightbox-nav:hover {
+        background: rgba(0, 234, 255, 0.2);
+        color: #00eaff;
+      }
+      #lightbox-prev { left: 10px; }
+      #lightbox-next { right: 10px; }
+      #lightbox-close { z-index: 10002; }
+    `;
+    document.head.appendChild(style);
+
+    lightbox.addEventListener("click", (e) => {
+      if(e.target === lightbox || e.target.id === "lightbox-close") {
+        lightbox.classList.remove("active");
+      }
+    });
+
+    document.getElementById("lightbox-prev").addEventListener("click", (e) => {
+      e.stopPropagation();
+      changeLightboxImage(-1);
+    });
+
+    document.getElementById("lightbox-next").addEventListener("click", (e) => {
+      e.stopPropagation();
+      changeLightboxImage(1);
+    });
+
+    // Keyboard support
+    document.addEventListener("keydown", (e) => {
+      if(!lightbox.classList.contains("active")) return;
+      if(e.key === "ArrowLeft") changeLightboxImage(-1);
+      if(e.key === "ArrowRight") changeLightboxImage(1);
+      if(e.key === "Escape") lightbox.classList.remove("active");
     });
     
-    window.openLightbox = function(src) {
+    window.currentLightboxIndex = 0;
+
+    window.openLightbox = function(index) {
+      window.currentLightboxIndex = index;
       const overlay = document.getElementById("lightbox-overlay");
       const img = document.getElementById("lightbox-img");
-      img.src = src;
+      img.src = window.currentLightboxImages[index];
       overlay.classList.add("active");
+    };
+
+    window.changeLightboxImage = function(step) {
+      if(!window.currentLightboxImages || window.currentLightboxImages.length === 0) return;
+      window.currentLightboxIndex = (window.currentLightboxIndex + step + window.currentLightboxImages.length) % window.currentLightboxImages.length;
+      document.getElementById("lightbox-img").src = window.currentLightboxImages[window.currentLightboxIndex];
     };
   }
 }

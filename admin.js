@@ -71,7 +71,7 @@ async function login() {
   const p = document.getElementById("login-password").value;
   if(!u || !p) return showNotification("Enter credentials", "warning");
   try {
-    const res = await fetch("https://sr-pixels-kle9.onrender.com/api/auth/login", {
+    const res = await fetch("http://localhost:3000/api/auth/login", {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username: u, password: p })
     });
@@ -89,7 +89,7 @@ async function signup() {
   const p = document.getElementById("signup-password").value;
   if(!u || !p) return showNotification("Enter credentials", "warning");
   try {
-    const res = await fetch("https://sr-pixels-kle9.onrender.com/api/auth/signup", {
+    const res = await fetch("http://localhost:3000/api/auth/signup", {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username: u, password: p })
     });
@@ -115,7 +115,7 @@ function getAuthHeaders(contentType = "application/json") {
 async function fetchContent() {
   try {
     const timestamp = new Date().getTime();
-    const res = await fetch(`https://sr-pixels-kle9.onrender.com/api/content?t=${timestamp}`);
+    const res = await fetch(`http://localhost:3000/api/content?t=${timestamp}`);
     const data = await res.json();
     if(data && Object.keys(data).length > 0) {
       contentData = data;
@@ -312,7 +312,7 @@ document.getElementById("admin-form").addEventListener("submit", async (e) => {
   contentData.directProtocolBtn = document.getElementById("directProtocolBtn").value;
 
   try {
-    const res = await fetch("https://sr-pixels-kle9.onrender.com/api/content", {
+    const res = await fetch("http://localhost:3000/api/content", {
       method: "POST",
       headers: getAuthHeaders(),
       body: JSON.stringify({ data: contentData })
@@ -333,16 +333,19 @@ document.getElementById("admin-form").addEventListener("submit", async (e) => {
 async function fetchFolders() {
   try {
     const timestamp = new Date().getTime();
-    const res = await fetch(`https://sr-pixels-kle9.onrender.com/api/folders?t=${timestamp}`);
+    const res = await fetch(`http://localhost:3000/api/folders?t=${timestamp}`);
     const folders = await res.json();
     const grid = document.getElementById("folder-grid-admin");
     grid.innerHTML = "";
     folders.forEach(folder => {
+      const coverUrl = folder.coverPhotoId ? `http://localhost:3000/api/portfolio/${folder.coverPhotoId}/image?t=${new Date().getTime()}` : null;
       grid.innerHTML += `
         <div class="portfolio-item" style="cursor: pointer;" onclick="enterFolder('${folder._id}', '${folder.name}')">
-          <div style="font-size: 3rem; color: var(--theme-1); margin-bottom: 10px;">📁</div>
+          ${coverUrl ? `<img src="${coverUrl}" style="width: 100%; height: 120px; object-fit: cover; border-radius: 4px; margin-bottom: 10px;" />` : `<div style="font-size: 3rem; color: var(--theme-1); margin-bottom: 10px;">📁</div>`}
           <p>${folder.name}</p>
-          <button type="button" class="btn-primary" style="background: #ff0055; border-color: #ff0055; font-size: 10px; padding: 4px 8px;" onclick="event.stopPropagation(); deleteFolder('${folder._id}')">DELETE</button>
+          <div style="display: flex; gap: 5px; justify-content: center; margin-top: 10px;">
+            <button type="button" class="btn-primary" style="background: #ff0055; border-color: #ff0055; font-size: 10px; padding: 4px 8px;" onclick="event.stopPropagation(); deleteFolder('${folder._id}')">DELETE</button>
+          </div>
         </div>
       `;
     });
@@ -355,7 +358,7 @@ async function createFolder() {
   const name = document.getElementById("newFolderName").value.trim();
   if(!name) return showNotification("Enter folder name", "warning");
   try {
-    const res = await fetch("https://sr-pixels-kle9.onrender.com/api/folders", {
+    const res = await fetch("http://localhost:3000/api/folders", {
       method: "POST",
       headers: getAuthHeaders(),
       body: JSON.stringify({ name })
@@ -377,7 +380,7 @@ async function createFolder() {
 async function deleteFolder(id) {
   if(!confirm("Delete this folder and ALL images inside?")) return;
   try {
-    const res = await fetch(`https://sr-pixels-kle9.onrender.com/api/folders/${id}`, {
+    const res = await fetch(`http://localhost:3000/api/folders/${id}`, {
       method: "DELETE",
       headers: getAuthHeaders(null)
     });
@@ -414,16 +417,19 @@ async function fetchImages() {
   if(!currentFolderId) return;
   try {
     const timestamp = new Date().getTime();
-    const res = await fetch(`https://sr-pixels-kle9.onrender.com/api/portfolio?folderId=${currentFolderId}&t=${timestamp}`);
+    const res = await fetch(`http://localhost:3000/api/portfolio?folderId=${currentFolderId}&t=${timestamp}`);
     const images = await res.json();
     const grid = document.getElementById("image-grid-admin");
     grid.innerHTML = "";
     images.forEach(img => {
       grid.innerHTML += `
         <div class="portfolio-item">
-          <img src="https://sr-pixels-kle9.onrender.com/api/portfolio/${img._id}/image?t=${new Date().getTime()}" alt="${img.name}" />
+          <img src="http://localhost:3000/api/portfolio/${img._id}/image?t=${new Date().getTime()}" alt="${img.name}" />
           <p>${img.name}</p>
-          <button type="button" class="btn-primary" style="background: #ff0055; border-color: #ff0055;" onclick="deleteImage('${img._id}')">DELETE</button>
+          <div style="display: flex; flex-direction: column; gap: 5px; margin-top: 10px;">
+            <button type="button" class="btn-primary" style="font-size: 10px; padding: 4px 8px;" onclick="setCoverPhoto('${img._id}')">SET AS COVER</button>
+            <button type="button" class="btn-primary" style="background: #ff0055; border-color: #ff0055; font-size: 10px; padding: 4px 8px;" onclick="deleteImage('${img._id}')">DELETE</button>
+          </div>
         </div>
       `;
     });
@@ -453,7 +459,7 @@ async function uploadImage() {
   formData.append("folderId", currentFolderId);
 
   try {
-    const res = await fetch("https://sr-pixels-kle9.onrender.com/api/portfolio", {
+    const res = await fetch("http://localhost:3000/api/portfolio", {
       method: "POST",
       headers: getAuthHeaders(null),
       body: formData
@@ -475,7 +481,7 @@ async function uploadImage() {
 async function deleteImage(id) {
   if(!confirm("Are you sure you want to permanently delete this visual asset?")) return;
   try {
-    const res = await fetch(`https://sr-pixels-kle9.onrender.com/api/portfolio/${id}`, {
+    const res = await fetch(`http://localhost:3000/api/portfolio/${id}`, {
       method: "DELETE",
       headers: getAuthHeaders(null)
     });
@@ -488,5 +494,24 @@ async function deleteImage(id) {
   } catch(err) {
     console.error(err);
     showNotification("SYSTEM FAULT: Error deleting image.", "error");
+  }
+}
+
+async function setCoverPhoto(imageId) {
+  if(!currentFolderId) return;
+  try {
+    const res = await fetch(`http://localhost:3000/api/folders/${currentFolderId}/cover`, {
+      method: "PATCH",
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ coverPhotoId: imageId })
+    });
+    if(res.ok) {
+      showNotification("COVER PHOTO SET", "success");
+    } else {
+      showNotification("Failed to set cover photo", "error");
+    }
+  } catch(err) {
+    console.error(err);
+    showNotification("System error", "error");
   }
 }

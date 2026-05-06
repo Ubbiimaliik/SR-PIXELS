@@ -43,7 +43,8 @@ const ContentSchema = new mongoose.Schema({
 const Content = mongoose.model("Content", ContentSchema);
 
 const PortfolioFolderSchema = new mongoose.Schema({
-  name: { type: String, required: true }
+  name: { type: String, required: true },
+  coverPhotoId: { type: mongoose.Schema.Types.ObjectId, ref: 'PortfolioImage' }
 });
 const PortfolioFolder = mongoose.model("PortfolioFolder", PortfolioFolderSchema);
 
@@ -69,7 +70,7 @@ const upload = multer({ storage });
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
-  
+
   // Basic check for session-based token (mocked for this session)
   if (!token || token === "null" || token === "undefined") {
     return res.status(401).json({ error: "Access denied. Login required." });
@@ -115,16 +116,16 @@ initializeContent();
 app.post("/api/auth/signup", async (req, res) => {
   try {
     const { username, password } = req.body;
-    if(!username || !password) return res.status(400).json({ error: "Username and password required" });
+    if (!username || !password) return res.status(400).json({ error: "Username and password required" });
     const existing = await User.findOne({ username });
-    if(existing) return res.status(400).json({ error: "User already exists" });
-    
+    if (existing) return res.status(400).json({ error: "User already exists" });
+
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = new User({ username, password: hashedPassword });
     await user.save();
-    
+
     res.json({ message: "User created successfully" });
-  } catch(err) {
+  } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
@@ -133,14 +134,14 @@ app.post("/api/auth/login", async (req, res) => {
   try {
     const { username, password } = req.body;
     const user = await User.findOne({ username });
-    if(!user) return res.status(400).json({ error: "Invalid credentials" });
-    
+    if (!user) return res.status(400).json({ error: "Invalid credentials" });
+
     const valid = await bcrypt.compare(password, user.password);
-    if(!valid) return res.status(400).json({ error: "Invalid credentials" });
-    
+    if (!valid) return res.status(400).json({ error: "Invalid credentials" });
+
     // Return a simple session string instead of JWT
     res.json({ token: `session-${user.username}-${Date.now()}`, message: "Logged in successfully" });
-  } catch(err) {
+  } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
@@ -166,11 +167,31 @@ app.post("/api/content", authenticateToken, async (req, res) => {
   }
 });
 
-// Get all portfolio folders
+// Get all portfolio folders with their cover photo ID
 app.get("/api/folders", async (req, res) => {
   try {
     const folders = await PortfolioFolder.find({});
-    res.json(folders);
+    // For each folder, if coverPhotoId is null, try to find the first image
+    const foldersWithDefaults = await Promise.all(folders.map(async (f) => {
+      let coverId = f.coverPhotoId;
+      if (!coverId) {
+        const firstImg = await PortfolioImage.findOne({ folderId: f._id }).sort({ _id: 1 });
+        if (firstImg) coverId = firstImg._id;
+      }
+      return { ...f.toObject(), coverPhotoId: coverId };
+    }));
+    res.json(foldersWithDefaults);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Update folder cover photo
+app.patch("/api/folders/:id/cover", authenticateToken, async (req, res) => {
+  try {
+    const { coverPhotoId } = req.body;
+    await PortfolioFolder.findByIdAndUpdate(req.params.id, { coverPhotoId });
+    res.json({ message: "Cover photo updated" });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

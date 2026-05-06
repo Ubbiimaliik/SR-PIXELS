@@ -460,23 +460,28 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: var(--spacing-sm);
+  margin-top: auto;
+  padding-top: var(--spacing-md);
+  gap: 10px;
 }
 
 .product-card-enquire {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
-  padding: 8px 16px;
+  padding: 8px 14px;
   border: 1px solid var(--orange);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
   color: var(--orange);
   background: transparent;
   cursor: pointer;
   transition: all 0.25s;
   text-decoration: none;
+  white-space: nowrap;
+  flex: 1;
 }
 
 .product-card-enquire:hover {
