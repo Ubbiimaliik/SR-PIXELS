@@ -80,9 +80,9 @@ function toggleAuthMode() {
 async function login() {
   const u = document.getElementById("login-username").value;
   const p = document.getElementById("login-password").value;
-  if(!u || !p) return showNotification("Enter credentials", "warning");
+  if (!u || !p) return showNotification("Enter credentials", "warning");
   try {
-    const res = await fetch("http://localhost:3000/api/auth/login", {
+    const res = await fetch("https://sr-pixels-kle9.onrender.com/api/auth/login", {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username: u, password: p })
     });
@@ -98,9 +98,9 @@ async function login() {
 async function signup() {
   const u = document.getElementById("signup-username").value;
   const p = document.getElementById("signup-password").value;
-  if(!u || !p) return showNotification("Enter credentials", "warning");
+  if (!u || !p) return showNotification("Enter credentials", "warning");
   try {
-    const res = await fetch("http://localhost:3000/api/auth/signup", {
+    const res = await fetch("https://sr-pixels-kle9.onrender.com/api/auth/signup", {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username: u, password: p })
     });
@@ -126,7 +126,7 @@ function getAuthHeaders() {
 
 async function fetchProductContent() {
   try {
-    const res = await fetch("http://localhost:3000/api/products-content");
+    const res = await fetch("https://sr-pixels-kle9.onrender.com/api/products-content");
     const data = await res.json();
     if (data) {
       productContentData = data;
@@ -168,7 +168,7 @@ async function saveProductContent() {
 
   try {
     // 1. Save text content
-    const res = await fetch("http://localhost:3000/api/products-content", {
+    const res = await fetch("https://sr-pixels-kle9.onrender.com/api/products-content", {
       method: "POST",
       headers: getAuthHeaders(),
       body: JSON.stringify({ data })
@@ -188,7 +188,7 @@ async function saveProductContent() {
       if (fileInput && fileInput.files[0]) {
         const formData = new FormData();
         formData.append("image", fileInput.files[0]);
-        const imgRes = await fetch(`http://localhost:3000/api/content-images/${field.key}`, {
+        const imgRes = await fetch(`https://sr-pixels-kle9.onrender.com/api/content-images/${field.key}`, {
           method: "POST",
           headers: { "Authorization": `Bearer ${sessionStorage.getItem("adminToken")}` },
           body: formData
@@ -198,26 +198,26 @@ async function saveProductContent() {
     }
 
     showNotification("MISSION ACCOMPLISHED: Database and visual assets updated successfully!", "success");
-    
+
     // Refresh previews
     setTimeout(() => {
       const timestamp = new Date().getTime();
       const previews = ["prev-large", "prev-small1", "prev-small2"];
       previews.forEach(id => {
         const img = document.getElementById(id).querySelector("img");
-        if(img) img.src = img.src.split('?')[0] + '?t=' + timestamp;
+        if (img) img.src = img.src.split('?')[0] + '?t=' + timestamp;
       });
     }, 500);
 
-  } catch (e) { 
+  } catch (e) {
     console.error(e);
-    showNotification("SYSTEM FAULT: " + e.message, "error"); 
+    showNotification("SYSTEM FAULT: " + e.message, "error");
   }
 }
 
 async function fetchProducts() {
   try {
-    const res = await fetch("http://localhost:3000/api/products");
+    const res = await fetch("https://sr-pixels-kle9.onrender.com/api/products");
     const products = await res.json();
     const grid = document.getElementById("product-list-admin");
     grid.innerHTML = "";
@@ -225,7 +225,7 @@ async function fetchProducts() {
       grid.innerHTML += `
         <div class="product-item">
           <button class="remove-btn" onclick="deleteProduct('${p._id}')">DELETE</button>
-          <img src="http://localhost:3000/api/products/${p._id}/image" alt="${p.title}">
+          <img src="https://sr-pixels-kle9.onrender.com/api/products/${p._id}/image" alt="${p.title}">
           ${p.badge ? `<span class="badge-tag">${p.badge}</span>` : ""}
           <h3>${p.title}</h3>
           <p>${p.desc}</p>
@@ -254,7 +254,7 @@ async function addProduct() {
   formData.append("image", file);
 
   try {
-    const res = await fetch("http://localhost:3000/api/products", {
+    const res = await fetch("https://sr-pixels-kle9.onrender.com/api/products", {
       method: "POST",
       headers: { "Authorization": `Bearer ${sessionStorage.getItem("adminToken")}` },
       body: formData
@@ -273,7 +273,7 @@ async function addProduct() {
 async function deleteProduct(id) {
   if (!confirm("Permanently delete this product?")) return;
   try {
-    const res = await fetch(`http://localhost:3000/api/products/${id}`, {
+    const res = await fetch(`https://sr-pixels-kle9.onrender.com/api/products/${id}`, {
       method: "DELETE",
       headers: { "Authorization": `Bearer ${sessionStorage.getItem("adminToken")}` }
     });

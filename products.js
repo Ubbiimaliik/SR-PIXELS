@@ -79,16 +79,16 @@ document.addEventListener("DOMContentLoaded", async () => {
 async function fetchDynamicData() {
   try {
     const timestamp = new Date().getTime();
-    
+
     // Fetch Products
-    const prodRes = await fetch(`http://localhost:3000/api/products?t=${timestamp}`);
+    const prodRes = await fetch(`https://sr-pixels-kle9.onrender.com/api/products?t=${timestamp}`);
     if (prodRes.ok) {
       dynamicProducts = await prodRes.json();
       renderProducts("all");
     }
 
     // Fetch Page Content
-    const contentRes = await fetch(`http://localhost:3000/api/products-content?t=${timestamp}`);
+    const contentRes = await fetch(`https://sr-pixels-kle9.onrender.com/api/products-content?t=${timestamp}`);
     if (contentRes.ok) {
       productPageContent = await contentRes.json();
       applyProductContent();
@@ -120,9 +120,9 @@ function applyProductContent() {
 
   // Images
   const largeImg = document.querySelector(".featured-large .featured-img-wrapper img");
-  if(largeImg) {
+  if (largeImg) {
     // Only update if not already set by this script or handle error
-    const src = `http://localhost:3000/api/content-images/featuredLarge?t=${timestamp}`;
+    const src = `https://sr-pixels-kle9.onrender.com/api/content-images/featuredLarge?t=${timestamp}`;
     largeImg.src = src;
   }
 
@@ -134,7 +134,7 @@ function applyProductContent() {
     const img = smallCards[0].querySelector(".featured-img-wrapper img");
     if (t && c.featuredSmall1Title) t.textContent = c.featuredSmall1Title;
     if (d && c.featuredSmall1Tag) d.textContent = c.featuredSmall1Tag;
-    if (img) img.src = `http://localhost:3000/api/content-images/featuredSmall1?t=${timestamp}`;
+    if (img) img.src = `https://sr-pixels-kle9.onrender.com/api/content-images/featuredSmall1?t=${timestamp}`;
   }
   // Small Card 2
   if (smallCards[1]) {
@@ -143,7 +143,7 @@ function applyProductContent() {
     const img = smallCards[1].querySelector(".featured-img-wrapper img");
     if (t && c.featuredSmall2Title) t.textContent = c.featuredSmall2Title;
     if (d && c.featuredSmall2Tag) d.textContent = c.featuredSmall2Tag;
-    if (img) img.src = `http://localhost:3000/api/content-images/featuredSmall2?t=${timestamp}`;
+    if (img) img.src = `https://sr-pixels-kle9.onrender.com/api/content-images/featuredSmall2?t=${timestamp}`;
   }
 
   const collectionTitle = document.querySelector(".collection-title");
@@ -178,7 +178,7 @@ function renderProducts(filter) {
     card.id = product._id;
     card.style.animationDelay = `${i * 0.07}s`;
 
-    const imgSrc = `http://localhost:3000/api/products/${product._id}/image`;
+    const imgSrc = `https://sr-pixels-kle9.onrender.com/api/products/${product._id}/image`;
 
     card.innerHTML = `
       <div class="product-card-img">
@@ -199,15 +199,15 @@ function renderProducts(filter) {
   });
 }
 
-window.addToEnquiryList = function(productId) {
+window.addToEnquiryList = function (productId) {
   const product = dynamicProducts.find(p => p._id === productId);
   if (!product) return;
-  
+
   if (!enquiryList.find(p => p._id === productId)) {
     enquiryList.push(product);
     sessionStorage.setItem('enquiryList', JSON.stringify(enquiryList));
     updateEnquiryUI();
-    
+
     // Minimal light effect
     const card = document.getElementById(productId);
     if (card) {
@@ -235,7 +235,7 @@ window.addToEnquiryList = function(productId) {
   }
 };
 
-window.removeFromEnquiryList = function(productId) {
+window.removeFromEnquiryList = function (productId) {
   enquiryList = enquiryList.filter(p => p._id !== productId);
   sessionStorage.setItem('enquiryList', JSON.stringify(enquiryList));
   updateEnquiryUI();
@@ -244,16 +244,16 @@ window.removeFromEnquiryList = function(productId) {
 function updateEnquiryUI() {
   const badge = document.getElementById("enquiry-badge");
   const body = document.getElementById("enquiry-panel-body");
-  
+
   if (badge) badge.textContent = enquiryList.length;
-  
+
   if (body) {
     if (enquiryList.length === 0) {
       body.innerHTML = '<p class="enquiry-empty-msg">Your list is empty. Add products to enquire about them.</p>';
     } else {
       body.innerHTML = enquiryList.map(item => `
         <div class="enquiry-item">
-          <img src="http://localhost:3000/api/products/${item._id}/image" alt="${item.title}" class="enquiry-item-img" />
+          <img src="https://sr-pixels-kle9.onrender.com/api/products/${item._id}/image" alt="${item.title}" class="enquiry-item-img" />
           <div class="enquiry-item-info">
             <div class="enquiry-item-title">${item.title}</div>
             <div class="enquiry-item-cat">${item.category}</div>
@@ -266,7 +266,7 @@ function updateEnquiryUI() {
 }
 
 // Global function for footer filter links
-window.filterByCategory = function(category) {
+window.filterByCategory = function (category) {
   const filterBtns = document.querySelectorAll(".filter-btn");
   filterBtns.forEach(b => {
     b.classList.remove("active");

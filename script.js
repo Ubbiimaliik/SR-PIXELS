@@ -33,11 +33,11 @@ function handleEmailClick(email, e) {
   if (e) e.preventDefault();
   const mailtoUrl = `mailto:${email}`;
   const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(email)}&su=Inquiry&body=Hello,`;
-  
+
   let blurred = false;
   const onBlur = () => { blurred = true; };
   window.addEventListener('blur', onBlur);
-  
+
   // Attempt to trigger the system's mail handler
   const tempLink = document.createElement('a');
   tempLink.href = mailtoUrl;
@@ -45,7 +45,7 @@ function handleEmailClick(email, e) {
   document.body.appendChild(tempLink);
   tempLink.click();
   document.body.removeChild(tempLink);
-  
+
   // If the window doesn't blur or hide within 1.2s, open Gmail
   setTimeout(() => {
     window.removeEventListener('blur', onBlur);
@@ -70,12 +70,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   if (hasSeenSplash) {
     // Skip splash screen immediately
-    if(splash) splash.style.display = "none";
-    if(heroContent) {
+    if (splash) splash.style.display = "none";
+    if (heroContent) {
       heroContent.classList.remove("hero-hidden");
       heroContent.classList.add("hero-reveal");
     }
-    if(heroFooter) {
+    if (heroFooter) {
       heroFooter.classList.remove("hero-hidden");
       heroFooter.classList.add("hero-reveal");
     }
@@ -88,23 +88,23 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Phase 1: logo animates in via CSS (2.1s total)
     // Phase 2 at 2.5s: logo exits up
     setTimeout(() => {
-      if(splashLogo) splashLogo.classList.add("splash-logo-exit");
+      if (splashLogo) splashLogo.classList.add("splash-logo-exit");
       // Phase 3 at 2.8s: tagline fades in
       setTimeout(() => {
-        if(splashTagline) splashTagline.classList.add("splash-tagline-show");
+        if (splashTagline) splashTagline.classList.add("splash-tagline-show");
         // Phase 4 at 4.0s: whole splash fades out
         setTimeout(() => {
-          if(splash) splash.classList.add("splash-exit");
+          if (splash) splash.classList.add("splash-exit");
           // Phase 5 at 4.8s: remove splash, unlock scroll, reveal hero
           setTimeout(() => {
-            if(splash) splash.style.display = "none";
+            if (splash) splash.style.display = "none";
             document.body.style.overflow = "";
-            if(heroContent) {
+            if (heroContent) {
               heroContent.classList.remove("hero-hidden");
               heroContent.classList.add("hero-reveal");
             }
             setTimeout(() => {
-              if(heroFooter) {
+              if (heroFooter) {
                 heroFooter.classList.remove("hero-hidden");
                 heroFooter.classList.add("hero-reveal");
               }
@@ -119,7 +119,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   function startScramble() {
     const scrambleEl = document.querySelector('.scramble-text');
-    if(!scrambleEl) return;
+    if (!scrambleEl) return;
     const words = ["DESIGN.", "BUILD.", "INVENT.", "DEPLOY.", "CLICK."];
     let wordIndex = 0;
     const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&*";
@@ -130,13 +130,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       const interval = setInterval(() => {
         scrambleEl.innerText = targetWord.split("").map((letter, index) => {
-          if(index < iterations) return targetWord[index];
+          if (index < iterations) return targetWord[index];
           return chars[Math.floor(Math.random() * chars.length)];
         }).join("");
 
-        iterations += 1/3;
+        iterations += 1 / 3;
 
-        if(iterations >= targetWord.length) {
+        if (iterations >= targetWord.length) {
           clearInterval(interval);
           scrambleEl.innerText = targetWord;
           const pauseTime = (targetWord === "CLICK.") ? 3000 : 800;
@@ -152,7 +152,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const navbar = document.getElementById("navbar");
   const hamburger = document.getElementById("hamburger");
   const navLinks = document.getElementById("nav-links");
-  
+
   // Navbar scroll visibility
   window.addEventListener("scroll", () => {
     if (window.scrollY > 150) {
@@ -162,7 +162,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
-  if(hamburger) {
+  if (hamburger) {
     hamburger.addEventListener("click", () => {
       navLinks.classList.toggle("active");
     });
@@ -173,7 +173,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     anchor.addEventListener('click', function (e) {
       e.preventDefault();
       const target = document.querySelector(this.getAttribute('href'));
-      if(target) {
+      if (target) {
         target.scrollIntoView({
           behavior: 'smooth'
         });
@@ -186,7 +186,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const svcBtns = document.querySelectorAll(".svc-btn");
   const serviceVal = document.getElementById("service-val");
 
-  if(svcBtns.length > 0 && serviceVal) {
+  if (svcBtns.length > 0 && serviceVal) {
     svcBtns.forEach(btn => {
       btn.addEventListener("click", () => {
         svcBtns.forEach(b => b.classList.remove("active"));
@@ -196,7 +196,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
     // Set initial service val
     const activeBtn = document.querySelector(".svc-btn.active");
-    if(activeBtn) serviceVal.value = activeBtn.innerText;
+    if (activeBtn) serviceVal.value = activeBtn.innerText;
   }
 
   // Check for enquiry list from products page
@@ -211,7 +211,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           msg += `${index + 1}. ${item.title} (${item.category})\n`;
         });
         briefTextarea.value = msg;
-        
+
         // Optionally switch service category to "Printing" or "Others"
         // and scroll to the form
         setTimeout(() => {
@@ -226,19 +226,19 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
-  if(enquiryForm) {
+  if (enquiryForm) {
     enquiryForm.addEventListener("submit", (e) => {
       e.preventDefault();
       const phone = enquiryForm.dataset.whatsapp;
-      if(!phone) {
+      if (!phone) {
         showNotification("Contact number not configured yet. Please try again later.", "error");
         return;
       }
-      
+
       const brief = document.getElementById("project-brief").value;
       const svc = serviceVal ? serviceVal.value : "";
-      
-      if(!brief) {
+
+      if (!brief) {
         showNotification("Please enter a message.", "error");
         return;
       }
@@ -246,15 +246,15 @@ document.addEventListener("DOMContentLoaded", async () => {
       const text = `Hi! I'm interested in: ${svc}\n\nMessage:\n${brief}`;
       const cleanPhone = phone.replace(/[^0-9]/g, '');
       const waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(text)}`;
-      
+
       window.open(waUrl, "_blank");
-      
+
       // Show success
       const formSuccess = document.getElementById("form-success");
       const formHeader = document.querySelector(".form-header-row");
-      if(formSuccess) {
+      if (formSuccess) {
         enquiryForm.style.display = "none";
-        if(formHeader) formHeader.style.display = "none";
+        if (formHeader) formHeader.style.display = "none";
         formSuccess.style.display = "flex";
       }
     });
@@ -263,8 +263,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Fetch dynamic content
   try {
     const timestamp = new Date().getTime();
-    const res = await fetch(`http://localhost:3000/api/content?t=${timestamp}`);
-    if(res.ok) {
+    const res = await fetch(`https://sr-pixels-kle9.onrender.com/api/content?t=${timestamp}`);
+    if (res.ok) {
       const data = await res.json();
       applyContent(data);
     }
@@ -279,8 +279,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 async function initPortfolio() {
   try {
     const timestamp = new Date().getTime();
-    const res = await fetch(`http://localhost:3000/api/folders?t=${timestamp}`);
-    if(res.ok) {
+    const res = await fetch(`https://sr-pixels-kle9.onrender.com/api/folders?t=${timestamp}`);
+    if (res.ok) {
       const folders = await res.json();
       renderPortfolioFolders(folders);
     }
@@ -290,15 +290,15 @@ async function initPortfolio() {
 }
 
 function applyContent(data) {
-  if(!data || Object.keys(data).length === 0) return;
+  if (!data || Object.keys(data).length === 0) return;
 
   // Ticker
-  if(data.tickerText) {
+  if (data.tickerText) {
     const ticker = document.querySelector(".ticker-content");
-    if(ticker) {
+    if (ticker) {
       // Add two spans for seamless scrolling (animation translates -50%)
       ticker.innerHTML = `<span>${data.tickerText}</span><span>${data.tickerText}</span>`;
-      
+
       // Calculate duration to maintain a constant scroll speed
       // More text = slower (higher duration), less text = faster (lower duration)
       const charCount = data.tickerText.length;
@@ -308,19 +308,19 @@ function applyContent(data) {
   }
 
   // Services
-  if(data.servicesBannerTitle) {
+  if (data.servicesBannerTitle) {
     const bannerTitle = document.querySelector(".banner-title");
-    if(bannerTitle) bannerTitle.innerText = data.servicesBannerTitle;
+    if (bannerTitle) bannerTitle.innerText = data.servicesBannerTitle;
   }
-  if(data.servicesBannerSub) {
+  if (data.servicesBannerSub) {
     const bannerSub = document.querySelector(".banner-sub");
-    if(bannerSub) bannerSub.innerText = data.servicesBannerSub;
+    if (bannerSub) bannerSub.innerText = data.servicesBannerSub;
   }
 
   // Services Cards
-  if(data.services && data.services.length > 0) {
+  if (data.services && data.services.length > 0) {
     const grid = document.getElementById("services-grid");
-    if(grid) {
+    if (grid) {
       grid.innerHTML = "";
       const icons = [
         '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>',
@@ -352,24 +352,24 @@ function applyContent(data) {
   }
 
   // Portfolio
-  if(data.portfolioSub) {
+  if (data.portfolioSub) {
     const portSub = document.querySelector("#portfolio .section-sub");
-    if(portSub) portSub.innerText = data.portfolioSub;
+    if (portSub) portSub.innerText = data.portfolioSub;
   }
 
   // Reviews
-  if(data.reviewsSub) {
+  if (data.reviewsSub) {
     const revSub = document.querySelector("#reviews .section-sub");
-    if(revSub) revSub.innerText = data.reviewsSub;
+    if (revSub) revSub.innerText = data.reviewsSub;
   }
 
   // Marquee
-  if(data.reviews && data.reviews.length > 0) {
+  if (data.reviews && data.reviews.length > 0) {
     const marquee = document.querySelector(".reviews-marquee");
-    if(marquee) {
+    if (marquee) {
       marquee.innerHTML = "";
       // Add two sets for seamless scrolling
-      for(let i=0; i<2; i++) {
+      for (let i = 0; i < 2; i++) {
         data.reviews.forEach(rev => {
           marquee.innerHTML += `
             <div class="review-card">
@@ -389,16 +389,16 @@ function applyContent(data) {
   }
 
   // Contact
-  if(data.contactSub) {
+  if (data.contactSub) {
     const conSub = document.querySelector("#enquiry .section-sub");
-    if(conSub) conSub.innerText = data.contactSub;
+    if (conSub) conSub.innerText = data.contactSub;
   }
 
   // HQ Terminal
   const listContainer = document.getElementById("office-info-list");
-  if(listContainer) {
+  if (listContainer) {
     listContainer.innerHTML = "";
-    
+
     const categories = [
       { label: 'NAMES', data: data.names, icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#849495" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>' },
       { label: 'PHONES', data: data.phones, icon: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#849495" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>' },
@@ -407,21 +407,21 @@ function applyContent(data) {
     ];
 
     categories.forEach(cat => {
-      if(cat.data && cat.data.length > 0) {
+      if (cat.data && cat.data.length > 0) {
         listContainer.innerHTML += `
           <li class="terminal-item" style="align-items: flex-start; margin-bottom: 25px;">
             <div style="margin-top: 2px;">${cat.icon}</div>
             <div style="flex: 1; margin-left: 12px;">
               <div class="ti-label" style="margin-bottom: 8px; font-size: 12px; color: #fff; letter-spacing: 1px;">${cat.label}:</div>
               ${cat.data.map(val => {
-                let displayVal = val;
-                if (cat.label === 'LOCATION') {
-                  displayVal = `<a href="https://www.google.com/maps/search/${encodeURIComponent(val)}" target="_blank" style="color: inherit; text-decoration: underline; text-decoration-color: rgba(0, 234, 255, 0.4);">${val}</a>`;
-                } else if (cat.label === 'EMAIL') {
-                  displayVal = `<a href="#" onclick="handleEmailClick('${val}', event)" style="color: inherit; text-decoration: underline; text-decoration-color: rgba(0, 234, 255, 0.4);">${val}</a>`;
-                }
-                return `<div class="ti-val" style="margin-bottom: 6px; padding-left: 10px; border-left: 2px solid rgba(0, 234, 255, 0.15); line-height: 1.4;">${displayVal}</div>`;
-              }).join('')}
+          let displayVal = val;
+          if (cat.label === 'LOCATION') {
+            displayVal = `<a href="https://www.google.com/maps/search/${encodeURIComponent(val)}" target="_blank" style="color: inherit; text-decoration: underline; text-decoration-color: rgba(0, 234, 255, 0.4);">${val}</a>`;
+          } else if (cat.label === 'EMAIL') {
+            displayVal = `<a href="#" onclick="handleEmailClick('${val}', event)" style="color: inherit; text-decoration: underline; text-decoration-color: rgba(0, 234, 255, 0.4);">${val}</a>`;
+          }
+          return `<div class="ti-val" style="margin-bottom: 6px; padding-left: 10px; border-left: 2px solid rgba(0, 234, 255, 0.15); line-height: 1.4;">${displayVal}</div>`;
+        }).join('')}
             </div>
           </li>
         `;
@@ -436,49 +436,49 @@ function applyContent(data) {
 
     // Update first email for Email Us button
     const emailBtn = document.getElementById("email-btn");
-    if(emailBtn && data.emails && data.emails.length > 0) {
+    if (emailBtn && data.emails && data.emails.length > 0) {
       emailBtn.onclick = (e) => handleEmailClick(data.emails[0], e);
       emailBtn.removeAttribute("target");
     }
   }
 
   // Direct Protocol
-  if(data.directProtocolTitle) {
+  if (data.directProtocolTitle) {
     const dpTitle = document.querySelector(".dp-title");
-    if(dpTitle) dpTitle.innerText = data.directProtocolTitle;
+    if (dpTitle) dpTitle.innerText = data.directProtocolTitle;
   }
-  if(data.directProtocolDesc) {
+  if (data.directProtocolDesc) {
     const dpDesc = document.querySelector(".dp-desc");
-    if(dpDesc) dpDesc.innerText = data.directProtocolDesc;
+    if (dpDesc) dpDesc.innerText = data.directProtocolDesc;
   }
-  if(data.directProtocolBtn) {
+  if (data.directProtocolBtn) {
     const dpBtn = document.getElementById("email-btn");
-    if(dpBtn) {
+    if (dpBtn) {
       const svg = dpBtn.querySelector("svg");
       dpBtn.innerHTML = "";
-      if(svg) dpBtn.appendChild(svg);
+      if (svg) dpBtn.appendChild(svg);
       dpBtn.appendChild(document.createTextNode(" " + data.directProtocolBtn));
     }
   }
-  
+
 
 }
 
 function renderPortfolioFolders(folders) {
   const grid = document.getElementById("project-grid");
-  if(!grid) return;
-  
+  if (!grid) return;
+
   // Ensure styles exist
   ensurePortfolioStyles();
 
   grid.innerHTML = "";
-  if(!folders || folders.length === 0) {
+  if (!folders || folders.length === 0) {
     grid.innerHTML = "<p style='color: #849495;'>No portfolio folders available.</p>";
     return;
   }
-  
+
   folders.forEach(folder => {
-    const coverUrl = folder.coverPhotoId ? `http://localhost:3000/api/portfolio/${folder.coverPhotoId}/image?t=${new Date().getTime()}` : null;
+    const coverUrl = folder.coverPhotoId ? `https://sr-pixels-kle9.onrender.com/api/portfolio/${folder.coverPhotoId}/image?t=${new Date().getTime()}` : null;
     grid.innerHTML += `
       <div class="port-item folder-item" onclick="openFolder('${folder._id}', '${folder.name}')">
         ${coverUrl ? `<img src="${coverUrl}" alt="${folder.name}" class="folder-cover-img" />` : `
@@ -496,14 +496,14 @@ function renderPortfolioFolders(folders) {
 
 async function openFolder(folderId, folderName) {
   const grid = document.getElementById("project-grid");
-  if(!grid) return;
+  if (!grid) return;
 
   grid.innerHTML = "<p style='color: #849495;'>Loading assets...</p>";
 
   try {
     const timestamp = new Date().getTime();
-    const res = await fetch(`http://localhost:3000/api/portfolio?folderId=${folderId}&t=${timestamp}`);
-    if(res.ok) {
+    const res = await fetch(`https://sr-pixels-kle9.onrender.com/api/portfolio?folderId=${folderId}&t=${timestamp}`);
+    if (res.ok) {
       const images = await res.json();
       renderPortfolioImages(images, folderName);
     }
@@ -515,10 +515,10 @@ async function openFolder(folderId, folderName) {
 
 function renderPortfolioImages(images, folderName) {
   const grid = document.getElementById("project-grid");
-  if(!grid) return;
+  if (!grid) return;
 
   grid.innerHTML = "";
-  
+
   // Add Back Button and Header
   const header = document.createElement("div");
   header.style.gridColumn = "1 / -1";
@@ -528,25 +528,25 @@ function renderPortfolioImages(images, folderName) {
   header.style.marginBottom = "20px";
   header.style.borderBottom = "1px solid rgba(0, 234, 255, 0.2)";
   header.style.paddingBottom = "10px";
-  
+
   header.innerHTML = `
     <button class="btn-themed" onclick="initPortfolio()" style="padding: 5px 15px; font-size: 12px;">← BACK</button>
     <h3 style="color: #fff; margin: 0; font-size: 1.2rem; letter-spacing: 2px;">${folderName.toUpperCase()}</h3>
   `;
   grid.appendChild(header);
 
-  if(images.length === 0) {
+  if (images.length === 0) {
     const msg = document.createElement("p");
     msg.style.color = "#849495";
     msg.innerText = "No images in this folder.";
     grid.appendChild(msg);
     return;
   }
-  
-  window.currentLightboxImages = images.map(img => `http://localhost:3000/api/portfolio/${img._id}/image?t=${new Date().getTime()}`);
-  
+
+  window.currentLightboxImages = images.map(img => `https://sr-pixels-kle9.onrender.com/api/portfolio/${img._id}/image?t=${new Date().getTime()}`);
+
   images.forEach((img, index) => {
-    const src = `http://localhost:3000/api/portfolio/${img._id}/image?t=${new Date().getTime()}`;
+    const src = `https://sr-pixels-kle9.onrender.com/api/portfolio/${img._id}/image?t=${new Date().getTime()}`;
     const item = document.createElement("div");
     item.className = "port-item";
     item.onclick = () => openLightbox(index);
@@ -563,7 +563,7 @@ function renderPortfolioImages(images, folderName) {
 
 
 function ensurePortfolioStyles() {
-  if(!document.getElementById("dynamic-port-style")) {
+  if (!document.getElementById("dynamic-port-style")) {
     const style = document.createElement("style");
     style.id = "dynamic-port-style";
     style.innerHTML = `
@@ -729,7 +729,7 @@ function ensureLightbox() {
     document.head.appendChild(style);
 
     lightbox.addEventListener("click", (e) => {
-      if(e.target === lightbox || e.target.id === "lightbox-close") {
+      if (e.target === lightbox || e.target.id === "lightbox-close") {
         lightbox.classList.remove("active");
       }
     });
@@ -746,15 +746,15 @@ function ensureLightbox() {
 
     // Keyboard support
     document.addEventListener("keydown", (e) => {
-      if(!lightbox.classList.contains("active")) return;
-      if(e.key === "ArrowLeft") changeLightboxImage(-1);
-      if(e.key === "ArrowRight") changeLightboxImage(1);
-      if(e.key === "Escape") lightbox.classList.remove("active");
+      if (!lightbox.classList.contains("active")) return;
+      if (e.key === "ArrowLeft") changeLightboxImage(-1);
+      if (e.key === "ArrowRight") changeLightboxImage(1);
+      if (e.key === "Escape") lightbox.classList.remove("active");
     });
-    
+
     window.currentLightboxIndex = 0;
 
-    window.openLightbox = function(index) {
+    window.openLightbox = function (index) {
       window.currentLightboxIndex = index;
       const overlay = document.getElementById("lightbox-overlay");
       const img = document.getElementById("lightbox-img");
@@ -762,8 +762,8 @@ function ensureLightbox() {
       overlay.classList.add("active");
     };
 
-    window.changeLightboxImage = function(step) {
-      if(!window.currentLightboxImages || window.currentLightboxImages.length === 0) return;
+    window.changeLightboxImage = function (step) {
+      if (!window.currentLightboxImages || window.currentLightboxImages.length === 0) return;
       window.currentLightboxIndex = (window.currentLightboxIndex + step + window.currentLightboxImages.length) % window.currentLightboxImages.length;
       document.getElementById("lightbox-img").src = window.currentLightboxImages[window.currentLightboxIndex];
     };
