@@ -190,7 +190,7 @@ async function saveProductContent() {
         formData.append("image", fileInput.files[0]);
         const imgRes = await fetch(`http://localhost:3000/api/content-images/${field.key}`, {
           method: "POST",
-          headers: { "Authorization": `Bearer ${localStorage.getItem("adminToken")}` },
+          headers: { "Authorization": `Bearer ${sessionStorage.getItem("adminToken")}` },
           body: formData
         });
         if (!imgRes.ok) throw new Error(`Failed to upload image: ${field.key}`);
@@ -256,7 +256,7 @@ async function addProduct() {
   try {
     const res = await fetch("http://localhost:3000/api/products", {
       method: "POST",
-      headers: { "Authorization": `Bearer ${localStorage.getItem("adminToken")}` },
+      headers: { "Authorization": `Bearer ${sessionStorage.getItem("adminToken")}` },
       body: formData
     });
     if (res.ok) {
@@ -275,7 +275,7 @@ async function deleteProduct(id) {
   try {
     const res = await fetch(`http://localhost:3000/api/products/${id}`, {
       method: "DELETE",
-      headers: { "Authorization": `Bearer ${localStorage.getItem("adminToken")}` }
+      headers: { "Authorization": `Bearer ${sessionStorage.getItem("adminToken")}` }
     });
     if (res.ok) {
       showNotification("PRODUCT DELETED", "success");
